@@ -3,1358 +3,1023 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EV Revolution Dashboard 2010–2025</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Barlow+Condensed:wght@300;400;500;600;700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<title>EV Market Intelligence · Finance View</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&family=Figtree:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root {
-  --bg: #070b14;
-  --bg2: #0d1220;
-  --bg3: #111827;
-  --card: #0f1623;
-  --border: rgba(0,255,159,0.12);
-  --border2: rgba(0,200,255,0.12);
-  --green: #00ff9f;
-  --blue: #00c8ff;
-  --orange: #ff6b2b;
-  --red: #ff3d71;
-  --yellow: #ffd166;
-  --purple: #a78bfa;
-  --text: #e0eaf5;
-  --muted: #6b7fa0;
-  --glow: 0 0 20px rgba(0,255,159,0.3);
-  --glow-blue: 0 0 20px rgba(0,200,255,0.3);
+  --bg: #F0F2F8;
+  --sidebar: #14172B;
+  --sidebar2: #1C2040;
+  --white: #FFFFFF;
+  --card-border: rgba(0,0,0,0.06);
+  --shadow: 0 2px 16px rgba(0,0,0,0.07);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.1);
+  --accent: #4F6EF7;
+  --accent2: #7B8FF5;
+  --accent-light: #EEF1FF;
+  --green: #22C55E;
+  --green-light: #DCFCE7;
+  --red: #EF4444;
+  --red-light: #FEE2E2;
+  --orange: #F97316;
+  --orange-light: #FFEDD5;
+  --amber: #F59E0B;
+  --amber-light: #FEF3C7;
+  --purple: #8B5CF6;
+  --purple-light: #EDE9FE;
+  --text: #111827;
+  --text2: #374151;
+  --muted: #9CA3AF;
+  --muted2: #6B7280;
+  --border: #E5E7EB;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
 
 body {
+  font-family: 'Figtree', sans-serif;
   background: var(--bg);
   color: var(--text);
-  font-family: 'Barlow', sans-serif;
-  overflow-x: hidden;
-  min-height: 100vh;
+  display: flex;
+  height: 100vh;
 }
 
-/* BG Grid */
-body::before {
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 68px;
+  background: var(--sidebar);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  gap: 6px;
+  flex-shrink: 0;
+  z-index: 100;
+}
+.sidebar-logo {
+  width: 38px; height: 38px;
+  background: var(--accent);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800; font-size: 16px;
+  color: white;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(79,110,247,0.4);
+}
+.sidebar-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 17px;
+  color: rgba(255,255,255,0.35);
+  transition: all 0.2s;
+  position: relative;
+}
+.sidebar-icon:hover, .sidebar-icon.active {
+  background: rgba(79,110,247,0.2);
+  color: #fff;
+}
+.sidebar-icon.active::before {
   content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(0,255,159,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,255,159,0.025) 1px, transparent 1px);
-  background-size: 48px 48px;
-  pointer-events: none;
-  z-index: 0;
+  position: absolute;
+  left: -1px; top: 8px; bottom: 8px;
+  width: 3px;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
 }
-
-/* HEADER */
-.header {
-  position: relative;
-  z-index: 10;
-  padding: 32px 40px 24px;
-  background: linear-gradient(180deg, rgba(0,255,159,0.04) 0%, transparent 100%);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
+.sidebar-divider {
+  width: 32px;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+  margin: 8px 0;
 }
-.header-left h1 {
-  font-family: 'Orbitron', monospace;
-  font-size: clamp(18px, 3vw, 30px);
-  font-weight: 900;
-  letter-spacing: 2px;
-  color: var(--text);
-  line-height: 1.1;
-}
-.header-left h1 span { color: var(--green); }
-.header-left p {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
-  color: var(--muted);
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  margin-top: 4px;
-}
-.live-badge {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(0,255,159,0.06);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-family: 'Orbitron', monospace;
-  font-size: 11px;
-  letter-spacing: 2px;
-  color: var(--green);
-}
-.live-dot {
-  width: 8px; height: 8px;
+.sidebar-bottom { margin-top: auto; }
+.avatar {
+  width: 36px; height: 36px;
   border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 8px var(--green);
-  animation: pulse 1.5s infinite;
-}
-@keyframes pulse {
-  0%,100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
+  background: linear-gradient(135deg, #4F6EF7, #8B5CF6);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: white; font-weight: 600;
+  font-family: 'Outfit', sans-serif;
+  cursor: pointer;
 }
 
-/* KPI STRIP */
-.kpi-strip {
+/* ── MAIN ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+.topbar-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+}
+.topbar-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-left: 2px;
+}
+.search-box {
+  flex: 1;
+  max-width: 280px;
+  height: 34px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  margin-left: 20px;
+}
+.period-tabs {
+  display: flex;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+  margin-left: auto;
+}
+.ptab {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--muted2);
+  border: none;
+  background: transparent;
+  transition: all 0.2s;
+  font-family: 'Figtree', sans-serif;
+}
+.ptab.active {
+  background: var(--white);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+.icon-btn {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: 15px;
+  color: var(--muted2);
+  transition: all 0.2s;
+}
+.icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── CONTENT ── */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 22px 28px;
+  display: flex;
+  gap: 20px;
+}
+.content-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+.content-right {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── NAV PILLS ── */
+.nav-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.npill {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--muted2);
+  transition: all 0.2s;
+  font-family: 'Figtree', sans-serif;
+}
+.npill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+  box-shadow: 0 4px 12px rgba(79,110,247,0.3);
+}
+.npill:hover:not(.active) { border-color: var(--accent); color: var(--accent); }
+
+/* ── KPI ROW ── */
+.kpi-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--border);
-  position: relative;
-  z-index: 10;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 14px;
 }
 .kpi-card {
-  background: var(--card);
-  padding: 24px 28px;
+  background: var(--white);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
   position: relative;
   overflow: hidden;
-  transition: background 0.3s;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
-.kpi-card::before {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 2px;
-  background: var(--green);
-  transform: scaleX(0);
-  transition: transform 0.4s ease;
-  transform-origin: left;
+.kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.kpi-card.dark {
+  background: var(--sidebar);
+  border-color: transparent;
 }
-.kpi-card:hover::before { transform: scaleX(1); }
-.kpi-card:hover { background: rgba(15,22,35,0.9); }
+.kpi-card.dark .kpi-label { color: rgba(255,255,255,0.45); }
+.kpi-card.dark .kpi-main { color: #fff; }
+.kpi-card.dark .kpi-sub { color: rgba(255,255,255,0.5); }
 .kpi-label {
-  font-family: 'Barlow Condensed', sans-serif;
   font-size: 11px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
+  font-weight: 500;
   color: var(--muted);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
   margin-bottom: 8px;
 }
-.kpi-value {
-  font-family: 'Orbitron', monospace;
-  font-size: clamp(22px, 3vw, 34px);
+.kpi-main {
+  font-family: 'Outfit', sans-serif;
+  font-size: 26px;
   font-weight: 800;
-  color: var(--green);
+  color: var(--text);
   line-height: 1;
-  text-shadow: var(--glow);
+  margin-bottom: 8px;
 }
-.kpi-value.blue { color: var(--blue); text-shadow: var(--glow-blue); }
-.kpi-value.orange { color: var(--orange); text-shadow: 0 0 20px rgba(255,107,43,0.4); }
-.kpi-value.yellow { color: var(--yellow); text-shadow: 0 0 20px rgba(255,209,102,0.4); }
+.kpi-main .unit { font-size: 15px; font-weight: 500; opacity: 0.7; }
 .kpi-sub {
   font-size: 12px;
-  color: var(--muted);
-  margin-top: 6px;
+  color: var(--muted2);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 .kpi-badge {
-  font-family: 'Barlow Condensed', sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font-size: 11px;
-  padding: 2px 8px;
-  border-radius: 3px;
-  background: rgba(0,255,159,0.1);
-  color: var(--green);
-  font-weight: 600;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 5px;
 }
-.kpi-badge.up { color: var(--green); background: rgba(0,255,159,0.1); }
-.kpi-badge.warn { color: var(--orange); background: rgba(255,107,43,0.1); }
-.kpi-icon {
-  position: absolute;
-  top: 16px; right: 20px;
-  font-size: 28px;
-  opacity: 0.15;
-}
+.kpi-badge.up { background: var(--green-light); color: var(--green); }
+.kpi-badge.down { background: var(--red-light); color: var(--red); }
+.kpi-badge.neutral { background: var(--accent-light); color: var(--accent); }
+.kpi-sparkline { height: 44px; margin-top: 8px; }
+.kpi-sparkline canvas { width: 100% !important; height: 44px !important; }
 
-/* AUDIENCE TABS */
-.tabs-wrapper {
-  position: relative;
-  z-index: 10;
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border);
-  padding: 0 40px;
-  display: flex;
-  gap: 0;
-  overflow-x: auto;
-}
-.tab-btn {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  font-weight: 600;
-  padding: 16px 28px;
-  background: transparent;
-  border: none;
-  color: var(--muted);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  transition: all 0.3s;
-  white-space: nowrap;
-  position: relative;
-}
-.tab-btn:hover { color: var(--text); }
-.tab-btn.active {
-  color: var(--green);
-  border-bottom-color: var(--green);
-}
-.tab-audience {
-  font-size: 10px;
-  display: block;
-  opacity: 0.6;
-  letter-spacing: 1px;
-  font-weight: 400;
-  margin-top: 2px;
-}
-
-/* CONTENT */
-.main-content {
-  position: relative;
-  z-index: 10;
-  padding: 32px 40px;
-}
-.tab-panel { display: none; }
-.tab-panel.active { display: block; }
-
-/* SECTION TITLE */
-.section-header {
-  margin-bottom: 24px;
-}
-.section-title {
-  font-family: 'Orbitron', monospace;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--text);
-  margin-bottom: 4px;
-}
-.section-title span { color: var(--green); }
-.section-desc {
-  font-size: 13px;
-  color: var(--muted);
-  font-family: 'Barlow Condensed', sans-serif;
-  letter-spacing: 1px;
-}
-
-/* GRID LAYOUTS */
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-.grid-3-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
-.grid-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
-
-/* CHART CARD */
-.chart-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 24px;
-  position: relative;
-  overflow: hidden;
-}
-.chart-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--green), transparent);
-  opacity: 0.4;
-}
-.chart-card.blue-accent::before {
-  background: linear-gradient(90deg, transparent, var(--blue), transparent);
-}
-.chart-card.orange-accent::before {
-  background: linear-gradient(90deg, transparent, var(--orange), transparent);
-}
-.chart-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 20px;
+/* ── SECTION TITLE ── */
+.sec-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-.chart-tag {
-  background: rgba(0,255,159,0.08);
-  color: var(--green);
-  border-radius: 3px;
-  padding: 2px 8px;
-  font-size: 10px;
-  letter-spacing: 2px;
-}
-.chart-tag.orange { background: rgba(255,107,43,0.08); color: var(--orange); }
-.chart-tag.blue { background: rgba(0,200,255,0.08); color: var(--blue); }
-canvas { max-height: 300px; }
-
-/* STORY BANNER */
-.story-banner {
-  background: linear-gradient(135deg, rgba(0,255,159,0.06) 0%, rgba(0,200,255,0.04) 100%);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 24px 32px;
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-.story-icon { font-size: 40px; flex-shrink: 0; }
-.story-text h3 {
-  font-family: 'Orbitron', monospace;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--green);
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-.story-text p {
-  font-size: 14px;
-  color: var(--text);
-  line-height: 1.7;
-  opacity: 0.85;
-}
-.story-text p strong { color: var(--green); font-weight: 500; }
-
-/* INSIGHT BOX */
-.insight-box {
-  background: rgba(255,107,43,0.05);
-  border: 1px solid rgba(255,107,43,0.2);
-  border-radius: 6px;
-  padding: 16px 20px;
-  margin-top: 12px;
-}
-.insight-box.green {
-  background: rgba(0,255,159,0.05);
-  border-color: rgba(0,255,159,0.2);
-}
-.insight-box.blue {
-  background: rgba(0,200,255,0.05);
-  border-color: rgba(0,200,255,0.2);
-}
-.insight-box h4 {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--orange);
-  margin-bottom: 6px;
-}
-.insight-box.green h4 { color: var(--green); }
-.insight-box.blue h4 { color: var(--blue); }
-.insight-box p { font-size: 13px; color: var(--text); opacity: 0.8; line-height: 1.6; }
-
-/* MAP SECTION */
-.map-container {
-  position: relative;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 24px;
-  overflow: hidden;
-  min-height: 380px;
-}
-.map-canvas {
-  width: 100%;
-  height: 320px;
-  position: relative;
-}
-.map-bg {
-  width: 100%;
-  height: 100%;
-  opacity: 0.08;
-  position: absolute;
-  top: 0; left: 0;
-}
-.bubble-map {
-  position: relative;
-  width: 100%;
-  height: 320px;
-}
-.country-bubble {
-  position: absolute;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s;
-  border: 1px solid rgba(0,255,159,0.3);
-}
-.country-bubble:hover {
-  z-index: 100;
-  border-color: var(--green);
-  box-shadow: var(--glow);
-}
-.country-bubble .bubble-label {
-  position: absolute;
-  bottom: calc(100% + 4px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 4px 8px;
-  font-size: 10px;
-  white-space: nowrap;
-  font-family: 'Barlow Condensed', sans-serif;
-  letter-spacing: 1px;
-  display: none;
-  z-index: 200;
-}
-.country-bubble:hover .bubble-label { display: block; }
-.map-legend {
-  display: flex;
-  gap: 16px;
-  margin-top: 12px;
-  flex-wrap: wrap;
-}
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px;
-  letter-spacing: 1px;
-  color: var(--muted);
-}
-.legend-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-}
-
-/* DATA TABLE */
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
-}
-.data-table th {
-  padding: 10px 14px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
-  color: var(--muted);
-  font-weight: 600;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  font-size: 10px;
-  background: rgba(0,0,0,0.2);
-}
-.data-table td {
-  padding: 10px 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  color: var(--text);
-  font-size: 13px;
-}
-.data-table tr:hover td { background: rgba(0,255,159,0.03); }
-.data-table .bar-cell { display: flex; align-items: center; gap: 8px; }
-.mini-bar {
-  height: 6px;
-  border-radius: 3px;
-  background: var(--green);
-  min-width: 2px;
-  opacity: 0.7;
-  transition: opacity 0.3s;
-}
-.mini-bar.orange { background: var(--orange); }
-.mini-bar.blue { background: var(--blue); }
-
-/* RANK BADGE */
-.rank { font-family: 'Orbitron', monospace; color: var(--muted); font-size: 11px; }
-.rank.top { color: var(--yellow); }
-
-/* REGION PILL */
-.region-pill {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-size: 10px;
-  letter-spacing: 1px;
-  font-weight: 600;
-}
-.region-pill.apac { background: rgba(0,255,159,0.1); color: var(--green); }
-.region-pill.europe { background: rgba(0,200,255,0.1); color: var(--blue); }
-.region-pill.na { background: rgba(255,107,43,0.1); color: var(--orange); }
-.region-pill.oceania { background: rgba(167,139,250,0.1); color: var(--purple); }
-.region-pill.sa { background: rgba(255,209,102,0.1); color: var(--yellow); }
-
-/* METRIC ROWS */
-.metric-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-.metric-row:last-child { border-bottom: none; }
-.metric-name {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
-  letter-spacing: 1px;
-  color: var(--text);
-}
-.metric-val {
-  font-family: 'Orbitron', monospace;
-  font-size: 14px;
-  color: var(--green);
-  font-weight: 600;
-}
-
-/* SIGNAL METER */
-.signal-meter {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 20px;
-}
-.signal-title {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 16px;
-}
-.signal-item {
   margin-bottom: 14px;
 }
-.signal-label {
+.sec-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.sec-title .sec-sub {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-left: 6px;
+  font-family: 'Figtree', sans-serif;
+}
+.sec-action {
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 600;
+  cursor: pointer;
   display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  margin-bottom: 6px;
-  font-family: 'Barlow Condensed', sans-serif;
-}
-.signal-bar-bg {
-  height: 6px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.signal-bar-fill {
-  height: 100%;
-  border-radius: 3px;
-  background: linear-gradient(90deg, var(--green), var(--blue));
-  transition: width 1.2s ease;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  font-family: 'Figtree', sans-serif;
 }
 
-/* GROWTH INDICATOR */
-.growth-grid {
+/* ── CHART CARD ── */
+.chart-card {
+  background: var(--white);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  box-shadow: var(--shadow);
+  transition: box-shadow 0.2s;
+}
+.chart-card:hover { box-shadow: var(--shadow-lg); }
+
+/* ── MAIN CHART AREA ── */
+.main-chart-wrap {
+  position: relative;
+}
+.chart-annotation {
+  position: absolute;
+  top: 60px;
+  left: 38%;
+  background: var(--sidebar);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-family: 'DM Mono', monospace;
+  pointer-events: none;
+  z-index: 10;
+  white-space: nowrap;
+}
+.chart-annotation::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--sidebar);
+  border-bottom: none;
+}
+
+/* ── SEGMENT CARDS ── */
+.segment-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
-.growth-cell {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 14px;
-  text-align: center;
+.seg-card {
+  background: var(--white);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
 }
-.growth-cell .g-val {
-  font-family: 'Orbitron', monospace;
-  font-size: 20px;
+.seg-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+.seg-card::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: 0 0 12px 12px;
+}
+.seg-card.green::before { background: var(--green); }
+.seg-card.blue::before { background: var(--accent); }
+.seg-card.orange::before { background: var(--orange); }
+.seg-icon {
+  font-size: 22px;
+  margin-bottom: 8px;
+  display: block;
+}
+.seg-name {
+  font-size: 11px;
   font-weight: 700;
-  color: var(--green);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--muted2);
+  margin-bottom: 4px;
 }
-.growth-cell .g-val.down { color: var(--red); }
-.growth-cell .g-label {
-  font-family: 'Barlow Condensed', sans-serif;
+.seg-val {
+  font-family: 'Outfit', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.seg-sub { font-size: 11px; color: var(--muted); }
+
+/* ── RIGHT PANEL ── */
+.rpanel-card {
+  background: var(--white);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+.rpanel-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.more-btn {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
   font-size: 11px;
   color: var(--muted);
-  letter-spacing: 1px;
-  margin-top: 4px;
 }
 
-/* INVEST SCORE */
-.invest-card {
-  background: linear-gradient(135deg, rgba(0,255,159,0.05), rgba(0,200,255,0.03));
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
+/* ── STAT ROWS ── */
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--bg);
 }
-.invest-score {
-  font-family: 'Orbitron', monospace;
-  font-size: 48px;
-  font-weight: 900;
-  color: var(--green);
-  text-shadow: var(--glow);
+.stat-row:last-child { border-bottom: none; }
+.stat-ring-wrap {
+  position: relative;
+  width: 44px; height: 44px; flex-shrink: 0;
+}
+.stat-ring-wrap canvas { width: 44px !important; height: 44px !important; }
+.stat-ring-pct {
+  position: absolute;
+  inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text2);
+}
+.stat-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+.stat-sub { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.stat-val {
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+/* ── TABLE ── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.data-table th {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 9px 10px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--bg);
+  color: var(--text2);
+  vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--bg); }
+.country-flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+  color: var(--text);
+  font-size: 12px;
+}
+.flag-icon {
+  width: 24px; height: 16px;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
   line-height: 1;
 }
-.invest-label {
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
-  letter-spacing: 3px;
+.rank-num {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
   color: var(--muted);
-  text-transform: uppercase;
-  margin-top: 8px;
+  font-weight: 500;
 }
-.invest-desc { font-size: 13px; color: var(--text); margin-top: 8px; opacity: 0.75; }
+.rank-num.gold { color: #D97706; font-weight: 700; }
+.rank-num.silver { color: #6B7280; font-weight: 700; }
+.rank-num.bronze { color: #B45309; font-weight: 700; }
+.tag-pill {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+.tag-apac { background: #DCFCE7; color: #16A34A; }
+.tag-eu { background: #DBEAFE; color: #2563EB; }
+.tag-na { background: #FFEDD5; color: #EA580C; }
+.tag-oc { background: #EDE9FE; color: #7C3AED; }
+.tag-sa { background: #FEF3C7; color: #D97706; }
+.val-green { color: var(--green); font-weight: 700; font-family: 'DM Mono', monospace; font-size: 12px; }
+.val-blue { color: var(--accent); font-weight: 600; font-family: 'DM Mono', monospace; font-size: 12px; }
+.val-muted { color: var(--muted2); font-family: 'DM Mono', monospace; font-size: 12px; }
+.mini-spark { height: 28px; width: 70px; display: inline-block; }
 
-/* SCROLL */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+/* ── TREND BAR ── */
+.trend-bar-bg {
+  height: 5px;
+  background: var(--bg);
+  border-radius: 3px;
+  overflow: hidden;
+  width: 70px;
+}
+.trend-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+}
 
-/* ANIMATIONS */
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
+/* ── FINANCIAL PULSE ── */
+.pulse-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.pulse-cell {
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+.pulse-val {
+  font-family: 'Outfit', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+.pulse-label { font-size: 10px; color: var(--muted); margin-top: 3px; letter-spacing: 0.3px; }
+
+/* ── SCROLL ── */
+.content::-webkit-scrollbar { width: 5px; }
+.content::-webkit-scrollbar-track { background: transparent; }
+.content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── DIVIDER ── */
+.divider { height: 1px; background: var(--bg); margin: 8px 0; }
+
+/* ── TABS (view panels) ── */
+.view-panel { display: none; }
+.view-panel.active { display: flex; gap: 20px; flex: 1; flex-direction: row; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeSlide {
+  from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.tab-panel.active .chart-card,
-.tab-panel.active .story-banner,
-.tab-panel.active .map-container,
-.tab-panel.active .signal-meter {
-  animation: slideUp 0.4s ease forwards;
-}
-.tab-panel.active .chart-card:nth-child(2) { animation-delay: 0.05s; }
-.tab-panel.active .chart-card:nth-child(3) { animation-delay: 0.1s; }
-.tab-panel.active .chart-card:nth-child(4) { animation-delay: 0.15s; }
-
-/* COUNTER ANIMATION */
-.kpi-value[data-target] { opacity: 0; }
-.kpi-value.counted { opacity: 1; }
-
-/* RESPONSIVE */
-@media (max-width: 1100px) {
-  .kpi-strip { grid-template-columns: repeat(2, 1fr); }
-  .grid-2, .grid-3, .grid-3-1, .grid-1-2 { grid-template-columns: 1fr; }
-  .main-content { padding: 20px 20px; }
-  .header { padding: 20px; }
-  .tabs-wrapper { padding: 0 20px; }
-  .growth-grid { grid-template-columns: repeat(2, 1fr); }
+.kpi-card { animation: fadeSlide 0.4s ease both; }
+.kpi-card:nth-child(1) { animation-delay: 0.05s; }
+.kpi-card:nth-child(2) { animation-delay: 0.10s; }
+.kpi-card:nth-child(3) { animation-delay: 0.15s; }
+.kpi-card:nth-child(4) { animation-delay: 0.20s; }
+.chart-card, .seg-card, .rpanel-card {
+  animation: fadeSlide 0.5s ease both;
+  animation-delay: 0.25s;
 }
 
-.span-2 { grid-column: span 2; }
-.mt-16 { margin-top: 16px; }
-.mb-16 { margin-bottom: 16px; }
+/* ── INSIGHT STRIP ── */
+.insight-strip {
+  background: linear-gradient(135deg, #4F6EF7 0%, #8B5CF6 100%);
+  border-radius: 12px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: white;
+}
+.insight-strip .is-icon { font-size: 22px; flex-shrink: 0; }
+.insight-strip .is-text { font-size: 12px; line-height: 1.5; }
+.insight-strip .is-text strong { font-weight: 700; }
+.insight-strip .is-val {
+  margin-left: auto;
+  font-family: 'Outfit', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.insight-strip .is-val-sub { font-size: 9px; opacity: 0.7; }
 
-/* TOOLTIP OVERRIDE */
-.chartjs-tooltip {
-  background: var(--bg3) !important;
-  border: 1px solid var(--border) !important;
+/* ── CHANGE INDICATORS ── */
+.change-up { color: var(--green); font-size: 11px; font-weight: 700; }
+.change-down { color: var(--red); font-size: 11px; font-weight: 700; }
+
+/* SCROLLABLE table area */
+.table-scroll { overflow-y: auto; max-height: 220px; }
+.table-scroll::-webkit-scrollbar { width: 3px; }
+.table-scroll::-webkit-scrollbar-thumb { background: var(--border); }
+
+/* Radar label */
+.radar-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+.radar-litem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text2);
+}
+.radar-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<header class="header">
-  <div class="header-left">
-    <h1>EV <span>REVOLUTION</span> DASHBOARD</h1>
-    <p>Global Electric Vehicle Intelligence · 2010 — 2025 · 25 Countries · 5 Regions</p>
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">EV</div>
+  <div class="sidebar-icon active" title="Dashboard">⊞</div>
+  <div class="sidebar-icon" title="Analytics">📈</div>
+  <div class="sidebar-icon" title="Markets">🌏</div>
+  <div class="sidebar-icon" title="Reports">📋</div>
+  <div class="sidebar-divider"></div>
+  <div class="sidebar-icon" title="Settings">⚙️</div>
+  <div class="sidebar-icon" title="Help">💬</div>
+  <div class="sidebar-bottom">
+    <div class="avatar">AF</div>
   </div>
-  <div class="live-badge">
-    <div class="live-dot"></div>
-    DATA · 2025 UPDATED
-  </div>
-</header>
-
-<!-- KPI STRIP -->
-<div class="kpi-strip">
-  <div class="kpi-card">
-    <div class="kpi-icon">⚡</div>
-    <div class="kpi-label">Total Global EV Sales</div>
-    <div class="kpi-value" id="kpi1">76.3M</div>
-    <div class="kpi-sub">
-      <span class="kpi-badge up">▲ 21.8% YoY</span>
-      <span>2010 – 2025 cumulative</span>
-    </div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-icon">🔋</div>
-    <div class="kpi-label">Total Charging Stations</div>
-    <div class="kpi-value blue" id="kpi2">68.3M</div>
-    <div class="kpi-sub">
-      <span class="kpi-badge up" style="color:var(--blue);background:rgba(0,200,255,0.1)">▲ Rapid Build</span>
-      <span>Global infrastructure</span>
-    </div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-icon">💰</div>
-    <div class="kpi-label">Avg Gov't EV Subsidy</div>
-    <div class="kpi-value yellow" id="kpi3">$3,124</div>
-    <div class="kpi-sub">
-      <span class="kpi-badge" style="color:var(--yellow);background:rgba(255,209,102,0.1)">USD per vehicle</span>
-      <span>Across subsidized markets</span>
-    </div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-icon">🏆</div>
-    <div class="kpi-label">2025 EV Sales Leader</div>
-    <div class="kpi-value orange" id="kpi4">CHINA</div>
-    <div class="kpi-sub">
-      <span class="kpi-badge warn">12.9M units</span>
-      <span>38% market share in 2025</span>
-    </div>
-  </div>
-</div>
-
-<!-- TABS -->
-<nav class="tabs-wrapper">
-  <button class="tab-btn active" onclick="switchTab(0, this)">
-    🌍 GENERAL PUBLIC
-    <span class="tab-audience">The EV Shift Story</span>
-  </button>
-  <button class="tab-btn" onclick="switchTab(1, this)">
-    🏭 MANUFACTURERS
-    <span class="tab-audience">Strategic Intelligence</span>
-  </button>
-  <button class="tab-btn" onclick="switchTab(2, this)">
-    💰 INVESTORS
-    <span class="tab-audience">Opportunity Analysis</span>
-  </button>
-  <button class="tab-btn" onclick="switchTab(3, this)">
-    📊 FINANCE & ACCOUNTING
-    <span class="tab-audience">Detailed Data View</span>
-  </button>
 </nav>
 
-<main class="main-content">
+<!-- MAIN -->
+<div class="main">
 
-<!-- ======= TAB 1: GENERAL PUBLIC ======= -->
-<div class="tab-panel active" id="tab-0">
-  <div class="story-banner">
-    <div class="story-icon">⚡</div>
-    <div class="story-text">
-      <h3>THE SHIFT HAS ALREADY BEGUN</h3>
-      <p>In 2010, only <strong>20,000 EVs</strong> were sold worldwide. By 2025, that number reached <strong>19.7 million in a single year</strong> — nearly a 1,000× increase in 15 years. China leads with the highest sales and charging network, while Europe builds the densest infrastructure. This is not a future trend. This is happening now.</p>
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">EV Market Intelligence</div>
+    </div>
+    <div class="search-box">🔍 &nbsp;Search country, metric, year…</div>
+    <div class="period-tabs">
+      <button class="ptab" onclick="setView('overview',this)">Overview</button>
+      <button class="ptab active" onclick="setView('finance',this)">Finance</button>
+      <button class="ptab" onclick="setView('markets',this)">Markets</button>
+    </div>
+    <div class="topbar-actions">
+      <div class="icon-btn" title="Download">⬇</div>
+      <div class="icon-btn" title="Filter">⚙</div>
+      <div class="icon-btn" title="Share">↗</div>
     </div>
   </div>
 
-  <div class="grid-3-1 mb-16">
-    <!-- BIG LINE CHART -->
-    <div class="chart-card">
-      <div class="chart-title">
-        EV vs Petrol Sales · Global Trend 2010–2025
-        <span class="chart-tag">ANNUAL UNITS</span>
-      </div>
-      <canvas id="trendChart" height="240"></canvas>
-    </div>
-    <!-- DONUT REGIONAL -->
-    <div class="chart-card">
-      <div class="chart-title">
-        Regional Share of EV Sales
-        <span class="chart-tag blue">ALL TIME</span>
-      </div>
-      <canvas id="regionalDonut" height="240"></canvas>
-      <div style="margin-top:12px">
-        <div class="metric-row" style="padding:6px 0">
-          <span class="metric-name">🌏 APAC</span>
-          <span class="metric-val" style="font-size:12px">65.1%</span>
-        </div>
-        <div class="metric-row" style="padding:6px 0">
-          <span class="metric-name">🌍 Europe</span>
-          <span class="metric-val" style="font-size:12px;color:var(--blue)">20.8%</span>
-        </div>
-        <div class="metric-row" style="padding:6px 0">
-          <span class="metric-name">🌎 North America</span>
-          <span class="metric-val" style="font-size:12px;color:var(--orange)">13.1%</span>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- CONTENT -->
+  <div class="content" id="mainContent">
 
-  <div class="grid-2">
-    <!-- TOP 5 BAR CHART -->
-    <div class="chart-card">
-      <div class="chart-title">
-        Top 5 Countries · Total EV Sales
-        <span class="chart-tag">2010–2025</span>
+    <!-- LEFT COLUMN -->
+    <div class="content-left">
+
+      <!-- NAV PILLS -->
+      <div class="nav-pills">
+        <button class="npill active" onclick="switchTab('all',this)">All Regions</button>
+        <button class="npill" onclick="switchTab('apac',this)">APAC</button>
+        <button class="npill" onclick="switchTab('europe',this)">Europe</button>
+        <button class="npill" onclick="switchTab('na',this)">N. America</button>
+        <button class="npill" onclick="switchTab('emerging',this)">Emerging</button>
       </div>
-      <canvas id="top5Bar" height="220"></canvas>
+
+      <!-- KPI ROW -->
+      <div class="kpi-row">
+        <!-- DARK HERO KPI -->
+        <div class="kpi-card dark">
+          <div class="kpi-label">Total EV Units Sold · All-Time</div>
+          <div class="kpi-main">76.3<span class="unit">M</span></div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+            <span class="kpi-badge up">▲ 21.8%</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.4)">vs prior year</span>
+          </div>
+          <div class="kpi-sparkline"><canvas id="sp1"></canvas></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Charging Infrastructure</div>
+          <div class="kpi-main">237<span class="unit">K</span></div>
+          <div class="kpi-sub">
+            <span class="kpi-badge up">▲ 17.1%</span> Global stations 2025
+          </div>
+          <div class="kpi-sparkline"><canvas id="sp2"></canvas></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Avg Gov't Subsidy</div>
+          <div class="kpi-main">$3.1<span class="unit">K</span></div>
+          <div class="kpi-sub">
+            <span class="kpi-badge neutral">USD / vehicle</span>
+          </div>
+          <div class="kpi-sparkline"><canvas id="sp3"></canvas></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">ICE Sales Decline (2017–25)</div>
+          <div class="kpi-main">−21<span class="unit">%</span></div>
+          <div class="kpi-sub">
+            <span class="kpi-badge down">▼ Structural</span> ICE market
+          </div>
+          <div class="kpi-sparkline"><canvas id="sp4"></canvas></div>
+        </div>
+      </div>
+
+      <!-- MAIN SESSIONS CHART -->
+      <div class="chart-card">
+        <div class="sec-head">
+          <div>
+            <span class="sec-title">EV vs ICE Sales · Trend Overview</span>
+            <span class="sec-sub">2010 – 2025 | Annual units</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-size:11px;display:flex;align-items:center;gap:5px;color:var(--muted2)">
+              <span style="width:10px;height:3px;background:#4F6EF7;display:inline-block;border-radius:2px"></span>EV Sales
+            </span>
+            <span style="font-size:11px;display:flex;align-items:center;gap:5px;color:var(--muted2)">
+              <span style="width:10px;height:3px;background:#F97316;display:inline-block;border-radius:2px"></span>ICE Sales
+            </span>
+            <button class="sec-action">⬇ Export CSV</button>
+          </div>
+        </div>
+        <div class="main-chart-wrap">
+          <div class="chart-annotation">▲ 107% Jump — 2021</div>
+          <canvas id="mainChart" height="160"></canvas>
+        </div>
+      </div>
+
+      <!-- SEGMENT CARDS -->
+      <div class="segment-row">
+        <div class="seg-card green">
+          <span class="seg-icon">🏙️</span>
+          <div class="seg-name">Mass Market</div>
+          <div class="seg-val">11.4M</div>
+          <div class="seg-sub">Units in 2025 · <strong style="color:var(--green)">+17%</strong> YoY</div>
+        </div>
+        <div class="seg-card blue">
+          <span class="seg-icon">💎</span>
+          <div class="seg-name">Premium</div>
+          <div class="seg-val">7.2M</div>
+          <div class="seg-sub">Units in 2025 · <strong style="color:var(--accent)">+19%</strong> YoY</div>
+        </div>
+        <div class="seg-card orange">
+          <span class="seg-icon">🚛</span>
+          <div class="seg-name">Commercial</div>
+          <div class="seg-val">1.0M</div>
+          <div class="seg-sub">Units in 2025 · <strong style="color:var(--orange)">+20%</strong> YoY</div>
+        </div>
+      </div>
+
+      <!-- INSIGHT STRIP -->
+      <div class="insight-strip">
+        <div class="is-icon">💡</div>
+        <div class="is-text">
+          <strong>Financial Signal:</strong> EV market has grown <strong>983×</strong> since 2010. Countries with subsidies above $4,500 show 2.3× higher adoption rates. Infrastructure density is now the #1 predictor of market penetration.
+        </div>
+        <div style="text-align:right">
+          <div class="is-val">983<span style="font-size:14px">×</span></div>
+          <div class="is-val-sub">SINCE 2010</div>
+        </div>
+      </div>
+
+      <!-- COUNTRY TABLE -->
+      <div class="chart-card">
+        <div class="sec-head">
+          <span class="sec-title">Country Performance Matrix <span class="sec-sub">Top 15 markets · All-time</span></span>
+          <button class="sec-action" onclick="toggleAllRows()">View All ↓</button>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:28px">#</th>
+                <th>Country</th>
+                <th>Region</th>
+                <th>EV Sales</th>
+                <th>Charging</th>
+                <th>Subsidy</th>
+                <th>Market Share '25</th>
+                <th>Trend</th>
+              </tr>
+            </thead>
+            <tbody id="countryTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ANNUAL TABLE -->
+      <div class="chart-card">
+        <div class="sec-head">
+          <span class="sec-title">Annual Global Metrics <span class="sec-sub">2010–2025 · Finance ledger view</span></span>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table" id="annualTbl"></table>
+        </div>
+      </div>
+
     </div>
 
-    <!-- BUBBLE MAP -->
-    <div class="map-container">
-      <div class="chart-title">
-        EV Sales by Country · Bubble Map
-        <span class="chart-tag blue">GEOGRAPHIC</span>
-      </div>
-      <div class="bubble-map" id="bubbleMap"></div>
-      <div class="map-legend">
-        <div class="legend-item"><div class="legend-dot" style="background:var(--green);opacity:0.9"></div>APAC</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div>Europe</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--orange)"></div>N. America</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--purple)"></div>Oceania</div>
-        <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div>S. America</div>
-        <div class="legend-item" style="margin-left:auto;font-size:10px;color:var(--muted)">Bubble size = EV sales volume</div>
-      </div>
-    </div>
-  </div>
+    <!-- RIGHT COLUMN -->
+    <div class="content-right">
 
-  <div class="grid-3 mt-16">
-    <div class="chart-card">
-      <div class="chart-title">EV Market Share Growth</div>
-      <canvas id="marketShareLine" height="200"></canvas>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">Charging Stations 2010→2025</div>
-      <canvas id="chargingBar" height="200"></canvas>
-    </div>
-    <div class="chart-card" style="display:flex;flex-direction:column;justify-content:space-between">
-      <div class="chart-title">Key Facts</div>
-      <div class="metric-row">
-        <span class="metric-name">🚗 Fastest Growth Year</span>
-        <span class="metric-val" style="font-size:13px">2011 (+151%)</span>
+      <!-- RADAR -->
+      <div class="rpanel-card">
+        <div class="rpanel-title">
+          Regional Readiness
+          <div class="more-btn">···</div>
+        </div>
+        <canvas id="radarChart" height="180"></canvas>
+        <div class="radar-labels">
+          <div class="radar-litem"><div class="radar-dot" style="background:#4F6EF7"></div>Infrastructure</div>
+          <div class="radar-litem"><div class="radar-dot" style="background:#22C55E"></div>Sales Volume</div>
+          <div class="radar-litem"><div class="radar-dot" style="background:#F97316"></div>Policy Support</div>
+        </div>
       </div>
-      <div class="metric-row">
-        <span class="metric-name">⚡ Highest Charging</span>
-        <span class="metric-val" style="font-size:13px">China · 4.3M</span>
+
+      <!-- STATS -->
+      <div class="rpanel-card">
+        <div class="rpanel-title">
+          Top Markets · 2025
+          <div class="more-btn">···</div>
+        </div>
+        <div id="statRows"></div>
       </div>
-      <div class="metric-row">
-        <span class="metric-name">📏 Avg EV Range 2025</span>
-        <span class="metric-val" style="font-size:13px">471 km</span>
+
+      <!-- COST CARD -->
+      <div class="rpanel-card">
+        <div class="rpanel-title">
+          Running Cost / 100km
+          <div class="more-btn">···</div>
+        </div>
+        <canvas id="costChart" height="160"></canvas>
       </div>
-      <div class="metric-row">
-        <span class="metric-name">🌱 CO₂ Leaders</span>
-        <span class="metric-val" style="font-size:13px">Europe</span>
+
+      <!-- PIVOT SUMMARY -->
+      <div class="rpanel-card">
+        <div class="rpanel-title">Revenue Exposure by Region</div>
+        <canvas id="pivotDonut" height="130"></canvas>
+        <div style="margin-top:12px">
+          <div class="divider"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px">
+            <div class="pulse-cell"><div class="pulse-val" style="color:#4F6EF7">65.1%</div><div class="pulse-label">APAC Share</div></div>
+            <div class="pulse-cell"><div class="pulse-val" style="color:#22C55E">20.8%</div><div class="pulse-label">Europe Share</div></div>
+            <div class="pulse-cell"><div class="pulse-val" style="color:#F97316">13.1%</div><div class="pulse-label">N. America</div></div>
+            <div class="pulse-cell"><div class="pulse-val" style="color:#8B5CF6">1.0%</div><div class="pulse-label">Other</div></div>
+          </div>
+        </div>
       </div>
-      <div class="metric-row">
-        <span class="metric-name">💵 Top Subsidy</span>
-        <span class="metric-val" style="font-size:13px">USA · $7,490</span>
+
+      <!-- RANGE PROGRESS -->
+      <div class="rpanel-card">
+        <div class="rpanel-title">Avg EV Range Evolution</div>
+        <div class="pulse-grid" style="grid-template-columns:1fr 1fr">
+          <div class="pulse-cell">
+            <div class="pulse-val" style="color:var(--accent)">120<span style="font-size:11px">km</span></div>
+            <div class="pulse-label">2010 Avg Range</div>
+          </div>
+          <div class="pulse-cell">
+            <div class="pulse-val" style="color:var(--green)">471<span style="font-size:11px">km</span></div>
+            <div class="pulse-label">2025 Avg Range</div>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <canvas id="rangeSparkline" height="60"></canvas>
+        </div>
       </div>
-      <div class="insight-box green mt-16">
-        <h4>Shift Signal</h4>
-        <p>EV sales grew from 0.03% to over 24% of global vehicle sales between 2010 and 2025 — a structural transformation, not a trend.</p>
-      </div>
+
     </div>
   </div>
 </div>
 
-<!-- ======= TAB 2: MANUFACTURERS ======= -->
-<div class="tab-panel" id="tab-1">
-  <div class="story-banner">
-    <div class="story-icon">🏭</div>
-    <div class="story-text">
-      <h3>THE PETROL PEAK IS BEHIND US</h3>
-      <p>For petrol manufacturers, the data is unambiguous: ICE vehicle sales have been declining since 2017 peak while EVs accelerate across every segment. The <strong>premium segment</strong> moved first. Now <strong>mass-market EVs</strong> are the battleground. Companies that pivot now capture the subsidy window, infrastructure lock-in, and consumer loyalty shift.</p>
-    </div>
-  </div>
-
-  <div class="grid-2 mb-16">
-    <div class="chart-card orange-accent">
-      <div class="chart-title">
-        ICE Sales Decline vs EV Rise
-        <span class="chart-tag orange">CROSSOVER ALERT</span>
-      </div>
-      <canvas id="crossoverChart" height="240"></canvas>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">
-        Market Segment Breakdown · EV Sales
-        <span class="chart-tag">STACKED</span>
-      </div>
-      <canvas id="segmentChart" height="240"></canvas>
-    </div>
-  </div>
-
-  <div class="grid-3 mb-16">
-    <div class="chart-card">
-      <div class="chart-title">EV Range Evolution (km)</div>
-      <canvas id="rangeChart" height="200"></canvas>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">Subsidy by Country (USD)</div>
-      <canvas id="subsidyBar" height="200"></canvas>
-    </div>
-    <div class="chart-card" style="display:flex;flex-direction:column;gap:12px">
-      <div class="chart-title">Strategic Signals</div>
-      <div class="insight-box green">
-        <h4>🟢 Opportunity</h4>
-        <p>China + APAC account for 65% of all EV sales. Entry with localized models = massive TAM.</p>
-      </div>
-      <div class="insight-box">
-        <h4>🟠 Threat</h4>
-        <p>Petrol car sales fell from 67.3M (2017) to 52.1M (2025). ICE market is contracting structurally.</p>
-      </div>
-      <div class="insight-box blue">
-        <h4>🔵 Infrastructure Edge</h4>
-        <p>Europe has the highest charger density relative to sales — first-mover advantage for premium EV brands.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="grid-1-2">
-    <div class="signal-meter">
-      <div class="signal-title">Market Readiness Score by Region</div>
-      <div class="signal-item">
-        <div class="signal-label"><span>APAC / China</span><span style="color:var(--green)">94/100</span></div>
-        <div class="signal-bar-bg"><div class="signal-bar-fill" style="width:94%"></div></div>
-      </div>
-      <div class="signal-item">
-        <div class="signal-label"><span>Europe</span><span style="color:var(--green)">88/100</span></div>
-        <div class="signal-bar-bg"><div class="signal-bar-fill" style="width:88%"></div></div>
-      </div>
-      <div class="signal-item">
-        <div class="signal-label"><span>North America</span><span style="color:var(--yellow)">72/100</span></div>
-        <div class="signal-bar-bg"><div class="signal-bar-fill" style="width:72%;background:linear-gradient(90deg,var(--yellow),var(--orange))"></div></div>
-      </div>
-      <div class="signal-item">
-        <div class="signal-label"><span>South America</span><span style="color:var(--orange)">28/100</span></div>
-        <div class="signal-bar-bg"><div class="signal-bar-fill" style="width:28%;background:linear-gradient(90deg,var(--orange),var(--red))"></div></div>
-      </div>
-      <div class="signal-item">
-        <div class="signal-label"><span>Oceania</span><span style="color:var(--orange)">35/100</span></div>
-        <div class="signal-bar-bg"><div class="signal-bar-fill" style="width:35%;background:linear-gradient(90deg,var(--purple),var(--blue))"></div></div>
-      </div>
-      <div class="insight-box green" style="margin-top:16px">
-        <h4>Score Factors</h4>
-        <p>Based on EV market share, charging density, subsidy support, and emission regulation score.</p>
-      </div>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">Petrol vs EV Market Share Over Time (%)</div>
-      <canvas id="shareEvolutionChart" height="240"></canvas>
-    </div>
-  </div>
 </div>
-
-<!-- ======= TAB 3: INVESTORS ======= -->
-<div class="tab-panel" id="tab-2">
-  <div class="story-banner">
-    <div class="story-icon">💰</div>
-    <div class="story-text">
-      <h3>WHERE THE SMART MONEY IS MOVING</h3>
-      <p>EV adoption shows <strong>983× growth from 2010 to 2025</strong>. Countries with higher subsidies show measurably stronger EV adoption curves. Infrastructure spending is accelerating. The early-stage S-curve is past — we are now in the <strong>exponential scaling phase</strong>. APAC leads volume, Europe leads density, North America leads subsidy magnitude.</p>
-    </div>
-  </div>
-
-  <div class="grid-3 mb-16">
-    <div class="invest-card">
-      <div class="invest-score">983×</div>
-      <div class="invest-label">EV Sales Growth 2010→2025</div>
-      <div class="invest-desc">From 20,139 units to 19.67M — one of the fastest product category expansions in automotive history.</div>
-    </div>
-    <div class="invest-card" style="background:linear-gradient(135deg,rgba(0,200,255,0.05),rgba(167,139,250,0.03))">
-      <div class="invest-score" style="color:var(--blue);text-shadow:var(--glow-blue)">$68B+</div>
-      <div class="invest-label">Charging Infrastructure Deployed</div>
-      <div class="invest-desc">236,994 global stations in 2025 vs 148 in 2010. Infrastructure = durable competitive moat.</div>
-    </div>
-    <div class="invest-card" style="background:linear-gradient(135deg,rgba(255,107,43,0.05),rgba(255,61,113,0.03))">
-      <div class="invest-score" style="color:var(--yellow);text-shadow:0 0 20px rgba(255,209,102,0.4)">$3.5T</div>
-      <div class="invest-label">Est. Addressable Market</div>
-      <div class="invest-desc">Global EV + energy storage + charging infrastructure combined estimated TAM through 2030.</div>
-    </div>
-  </div>
-
-  <div class="grid-2 mb-16">
-    <div class="chart-card">
-      <div class="chart-title">
-        YoY Growth Rate · EV Sales
-        <span class="chart-tag">ANNUAL %</span>
-      </div>
-      <canvas id="growthRateChart" height="240"></canvas>
-    </div>
-    <div class="chart-card blue-accent">
-      <div class="chart-title">
-        Subsidy vs EV Adoption · Country View
-        <span class="chart-tag blue">CORRELATION</span>
-      </div>
-      <canvas id="subsidyScatter" height="240"></canvas>
-    </div>
-  </div>
-
-  <div class="grid-3">
-    <div class="chart-card">
-      <div class="chart-title">Charging Station CAGR by Region</div>
-      <canvas id="chargingCagr" height="200"></canvas>
-    </div>
-    <div class="chart-card">
-      <div class="chart-title">EV Sales Momentum 2021→2025</div>
-      <canvas id="momentumChart" height="200"></canvas>
-    </div>
-    <div class="chart-card" style="display:flex;flex-direction:column;gap:10px">
-      <div class="chart-title">Investment Signals</div>
-      <div class="growth-grid">
-        <div class="growth-cell">
-          <div class="g-val">107%</div>
-          <div class="g-label">2021 Growth</div>
-        </div>
-        <div class="growth-cell">
-          <div class="g-val">85%</div>
-          <div class="g-label">2022 Growth</div>
-        </div>
-        <div class="growth-cell">
-          <div class="g-val">34%</div>
-          <div class="g-label">2023 Growth</div>
-        </div>
-        <div class="growth-cell">
-          <div class="g-val">25%</div>
-          <div class="g-label">2024 Growth</div>
-        </div>
-        <div class="growth-cell">
-          <div class="g-val">22%</div>
-          <div class="g-label">2025 Growth</div>
-        </div>
-        <div class="growth-cell">
-          <div class="g-val" style="color:var(--blue)">471</div>
-          <div class="g-label">Avg Range km</div>
-        </div>
-      </div>
-      <div class="insight-box blue" style="margin-top:auto">
-        <h4>🔵 Growth Maturity Note</h4>
-        <p>Slowing from 107% → 22% is normal S-curve maturation, not decline. Absolute volume hits $19.7M/yr in 2025.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ======= TAB 4: FINANCE ======= -->
-<div class="tab-panel" id="tab-3">
-  <div class="story-banner">
-    <div class="story-icon">📊</div>
-    <div class="story-text">
-      <h3>NUMBERS THAT TELL THE STORY</h3>
-      <p>A financial-grade breakdown across all 25 countries and 5 regions. Track <strong>EV sales volume, charging infrastructure, government subsidies, CO₂ trends, and market share</strong> with complete year-by-year visibility. Data covers 2010–2025 across 3 vehicle segments: Commercial, Mass Market, and Premium.</p>
-    </div>
-  </div>
-
-  <div class="grid-2 mb-16">
-    <div class="chart-card">
-      <div class="chart-title">
-        Regional Revenue Summary · All-Time EV Sales
-        <span class="chart-tag">PIVOT TABLE</span>
-      </div>
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Region</th>
-            <th>Total EV Sales</th>
-            <th>Charging Stations</th>
-            <th>EV Subsidy (USD)</th>
-            <th>Share</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><span class="region-pill apac">APAC</span></td>
-            <td><strong>49,709,515</strong></td>
-            <td>52,390,083</td>
-            <td>$938,178</td>
-            <td>
-              <div class="bar-cell">
-                <div class="mini-bar" style="width:130px"></div>
-                65.1%
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="region-pill europe">Europe</span></td>
-            <td><strong>15,846,180</strong></td>
-            <td>13,166,217</td>
-            <td>$1,946,487</td>
-            <td>
-              <div class="bar-cell">
-                <div class="mini-bar blue" style="width:52px"></div>
-                20.8%
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="region-pill na">North America</span></td>
-            <td><strong>10,004,542</strong></td>
-            <td>2,495,313</td>
-            <td>$581,352</td>
-            <td>
-              <div class="bar-cell">
-                <div class="mini-bar orange" style="width:38px"></div>
-                13.1%
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="region-pill oceania">Oceania</span></td>
-            <td>507,897</td>
-            <td>153,510</td>
-            <td>$27,111</td>
-            <td>
-              <div class="bar-cell">
-                <div class="mini-bar" style="background:var(--purple);width:4px"></div>
-                0.7%
-              </div>
-            </td>
-          </tr>
-          <tr>
-            <td><span class="region-pill sa">S. America</span></td>
-            <td>254,703</td>
-            <td>121,653</td>
-            <td>$0</td>
-            <td>
-              <div class="bar-cell">
-                <div class="mini-bar" style="background:var(--yellow);width:2px"></div>
-                0.3%
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="chart-card">
-      <div class="chart-title">
-        Global YoY Metrics · 2010–2025
-        <span class="chart-tag">ANNUAL DATA</span>
-      </div>
-      <div style="overflow-y:auto;max-height:300px">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Year</th>
-              <th>EV Sales</th>
-              <th>ICE Sales</th>
-              <th>Charging Stn</th>
-              <th>YoY Growth</th>
-              <th>Avg Range</th>
-            </tr>
-          </thead>
-          <tbody id="annualTable"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <div class="grid-2">
-    <div class="chart-card">
-      <div class="chart-title">
-        Country Detail · EV Sales & Infrastructure
-        <span class="chart-tag blue">ALL 25 COUNTRIES</span>
-      </div>
-      <div style="overflow-y:auto;max-height:320px">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Country</th>
-              <th>Region</th>
-              <th>EV Sales</th>
-              <th>Chargers</th>
-              <th>Avg Subsidy</th>
-            </tr>
-          </thead>
-          <tbody id="countryTable"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="chart-card">
-      <div class="chart-title">Fuel Price vs Electricity Cost · Key Markets</div>
-      <canvas id="costCompareChart" height="240"></canvas>
-      <div class="insight-box green mt-16">
-        <h4>Cost Advantage Signal</h4>
-        <p>Fuel prices average $1.0–1.9/L globally while electricity costs $0.15–0.30/kWh. At 6 km/kWh EV efficiency vs 12 km/L ICE, EVs are 2–4× cheaper per km to run in most markets.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-</main>
 
 <script>
 // ===== DATA =====
-const years = [2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
-const evSales = [20139,68532,120099,229508,324688,530272,741256,1343059,1922263,2034750,2989469,6503062,9933342,13283873,16605356,19673169];
-const petrolSales = [51921783,54411642,57085248,59216155,60881369,63370033,65732477,67310036,65371876,63771402,54019729,53525919,50372745,54899792,53963902,52113431];
-const chargingStations = [148,578,1017,1475,3842,6032,10812,15729,25437,33655,53150,69704,105017,144995,202439,236994];
-const avgRange = [120.28,128.2,139.16,143.12,153.44,168.6,188.04,217.48,258.56,295.08,335.52,366.2,396.12,423.36,449.4,471.4];
-const growthRate = [0,151.31,66.81,94.75,80.19,58.53,45.38,64.6,45.34,51.12,75.49,107.29,84.87,51.47,25.09,21.8];
-const avgMarketShare = [2.77,13.77,24.48,56.79,88.88,114.84,141.67,206.33,277.19,406.75,758.25,1180.99,1483.41,1602.33,1786.19,1980.15];
-const iceTotal = [61252194,64160475,67311950,69833064,71809178,74737212,77547040,79448444,77137651,75272879,63806517,63366355,59780188,65212497,64234431,62181724];
+const YEARS = [2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+const EV = [20139,68532,120099,229508,324688,530272,741256,1343059,1922263,2034750,2989469,6503062,9933342,13283873,16605356,19673169];
+const ICE = [61252194,64160475,67311950,69833064,71809178,74737212,77547040,79448444,77137651,75272879,63806517,63366355,59780188,65212497,64234431,62181724];
+const CHARGERS = [148,578,1017,1475,3842,6032,10812,15729,25437,33655,53150,69704,105017,144995,202439,236994];
+const RANGE = [120.28,128.2,139.16,143.12,153.44,168.6,188.04,217.48,258.56,295.08,335.52,366.2,396.12,423.36,449.4,471.4];
+const GROWTH = [0,151.31,66.81,94.75,80.19,58.53,45.38,64.6,45.34,51.12,75.49,107.29,84.87,51.47,25.09,21.8];
 
-const segmentData = {
-  commercial: [1032,3528,6233,11833,16881,27316,38269,70159,98810,104846,154483,337010,516446,672742,848874,1019632],
-  massMarket: [11849,39671,69462,128758,184082,301521,428726,780052,1113720,1179064,1742753,3804124,5884832,7697456,9700400,11429256],
-  premium: [7258,25333,44404,88917,123725,201435,274261,492848,709733,750840,1092233,2361928,3532064,4913675,6056082,7224281]
-};
-
-const countryData = [
-  {c:'China',r:'APAC',ev:46544667,ch:4338106,sub:5818},
-  {c:'United States',r:'N. America',ev:8705699,ch:131267,sub:7490},
-  {c:'Germany',r:'Europe',ev:4848735,ch:185439,sub:3572},
-  {c:'United Kingdom',r:'Europe',ev:2450901,ch:82665,sub:3325},
-  {c:'France',r:'Europe',ev:2446101,ch:171174,sub:5775},
-  {c:'Canada',r:'N. America',ev:1166676,ch:48202,sub:4622},
-  {c:'South Korea',r:'APAC',ev:1140878,ch:249268,sub:4740},
-  {c:'Japan',r:'APAC',ev:1087957,ch:49260,sub:4625},
-  {c:'Norway',r:'Europe',ev:923061,ch:35915,sub:0},
-  {c:'Sweden',r:'Europe',ev:908473,ch:45844,sub:3792},
-  {c:'Italy',r:'Europe',ev:856622,ch:77783,sub:3618},
-  {c:'Netherlands',r:'Europe',ev:820328,ch:196516,sub:2838},
-  {c:'Spain',r:'Europe',ev:527789,ch:50087,sub:4392},
-  {c:'Australia',r:'Oceania',ev:507897,ch:13357,sub:565},
-  {c:'India',r:'APAC',ev:470701,ch:34475,sub:1805},
-  {c:'Switzerland',r:'Europe',ev:358938,ch:28251,sub:0},
-  {c:'Thailand',r:'APAC',ev:361898,ch:25686,sub:1715},
-  {c:'Austria',r:'Europe',ev:315708,ch:28762,sub:3495},
-  {c:'Turkey',r:'Europe',ev:324746,ch:27835,sub:1978},
-  {c:'Portugal',r:'Europe',ev:262024,ch:17905,sub:2448},
-  {c:'Belgium',r:'Europe',ev:618647,ch:41981,sub:2308},
-  {c:'Poland',r:'Europe',ev:184107,ch:10596,sub:3013},
-  {c:'Mexico',r:'N. America',ev:132167,ch:7945,sub:0},
-  {c:'Indonesia',r:'APAC',ev:103414,ch:9977,sub:843},
-  {c:'Brazil',r:'S. America',ev:254703,ch:16549,sub:0}
+const COUNTRIES = [
+  {c:'China',flag:'🇨🇳',r:'APAC',rt:'apac',ev:46544667,ch:4338106,sub:5818,ms:'38.0%',msv:38},
+  {c:'United States',flag:'🇺🇸',r:'N.Am',rt:'na',ev:8705699,ch:131267,sub:7490,ms:'11.5%',msv:11.5},
+  {c:'Germany',flag:'🇩🇪',r:'Europe',rt:'eu',ev:4848735,ch:185439,sub:3572,ms:'29.8%',msv:29.8},
+  {c:'United Kingdom',flag:'🇬🇧',r:'Europe',rt:'eu',ev:2450901,ch:82665,sub:3325,ms:'23.6%',msv:23.6},
+  {c:'France',flag:'🇫🇷',r:'Europe',rt:'eu',ev:2446101,ch:171174,sub:5775,ms:'24.0%',msv:24},
+  {c:'Canada',flag:'🇨🇦',r:'N.Am',rt:'na',ev:1166676,ch:48202,sub:4622,ms:'15.1%',msv:15.1},
+  {c:'South Korea',flag:'🇰🇷',r:'APAC',rt:'apac',ev:1140878,ch:249268,sub:4740,ms:'14.5%',msv:14.5},
+  {c:'Japan',flag:'🇯🇵',r:'APAC',rt:'apac',ev:1087957,ch:49260,sub:4625,ms:'5.4%',msv:5.4},
+  {c:'Norway',flag:'🇳🇴',r:'Europe',rt:'eu',ev:923061,ch:35915,sub:0,ms:'—',msv:65},
+  {c:'Sweden',flag:'🇸🇪',r:'Europe',rt:'eu',ev:908473,ch:45844,sub:3792,ms:'—',msv:55},
+  {c:'Italy',flag:'🇮🇹',r:'Europe',rt:'eu',ev:856622,ch:77783,sub:3618,ms:'11.3%',msv:11.3},
+  {c:'Netherlands',flag:'🇳🇱',r:'Europe',rt:'eu',ev:820328,ch:196516,sub:2838,ms:'—',msv:40},
+  {c:'Spain',flag:'🇪🇸',r:'Europe',rt:'eu',ev:527789,ch:50087,sub:4392,ms:'—',msv:18},
+  {c:'Australia',flag:'🇦🇺',r:'Oceania',rt:'oc',ev:507897,ch:13357,sub:565,ms:'—',msv:10},
+  {c:'India',flag:'🇮🇳',r:'APAC',rt:'apac',ev:470701,ch:34475,sub:1805,ms:'3.0%',msv:3}
 ];
 
-// Bubble map positions (approx x%,y% on container)
-const bubblePositions = {
-  'China': [68,38], 'United States': [18,35], 'Germany': [47,27],
-  'United Kingdom': [43,25], 'France': [44,31], 'Canada': [18,22],
-  'South Korea': [72,34], 'Japan': [74,32], 'Norway': [46,18],
-  'Sweden': [48,20], 'Italy': [49,34], 'Netherlands': [46,26],
-  'Spain': [43,35], 'Australia': [72,66], 'India': [62,42],
-  'Switzerland': [47,30], 'Thailand': [67,44], 'Austria': [49,28],
-  'Turkey': [55,34], 'Portugal': [41,36], 'Belgium': [46,27],
-  'Poland': [51,25], 'Mexico': [18,44], 'Indonesia': [70,50],
-  'Brazil': [28,60]
-};
-
-const regionColors = {
-  'APAC': '#00ff9f', 'Europe': '#00c8ff', 'N. America': '#ff6b2b',
-  'Oceania': '#a78bfa', 'S. America': '#ffd166'
-};
+const fmtM = n => n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(0)+'K' : n;
 
 // ===== CHART DEFAULTS =====
-Chart.defaults.color = '#6b7fa0';
-Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
-Chart.defaults.font.family = "'Barlow Condensed', sans-serif";
+Chart.defaults.font.family = "'Figtree', sans-serif";
+Chart.defaults.color = '#9CA3AF';
+Chart.defaults.borderColor = '#F3F4F6';
 
-const gridStyle = {
-  color: 'rgba(255,255,255,0.05)',
-  drawBorder: false
-};
-
-function fmtNum(n) {
-  if(n >= 1e6) return (n/1e6).toFixed(1) + 'M';
-  if(n >= 1e3) return (n/1e3).toFixed(0) + 'K';
-  return n;
-}
-
-// ===== TAB SWITCH =====
-function switchTab(idx, btn) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + idx).classList.add('active');
-  btn.classList.add('active');
-}
-
-// ===== POPULATE TABLES =====
-function buildTables() {
-  const tbody = document.getElementById('annualTable');
-  const globalEvData = [
-    [2010,20139,61252194,148,0,120],
-    [2011,68532,64160475,578,151,128],
-    [2012,120099,67311950,1017,67,139],
-    [2013,229508,69833064,1475,95,143],
-    [2014,324688,71809178,3842,80,153],
-    [2015,530272,74737212,6032,59,169],
-    [2016,741256,77547040,10812,45,188],
-    [2017,1343059,79448444,15729,65,217],
-    [2018,1922263,77137651,25437,45,259],
-    [2019,2034750,75272879,33655,51,295],
-    [2020,2989469,63806517,53150,75,336],
-    [2021,6503062,63366355,69704,107,366],
-    [2022,9933342,59780188,105017,85,396],
-    [2023,13283873,65212497,144995,51,423],
-    [2024,16605356,64234431,202439,25,449],
-    [2025,19673169,62181724,236994,22,471]
-  ];
-  tbody.innerHTML = globalEvData.map(([y,ev,ice,cs,gr,rng]) => `
-    <tr>
-      <td style="font-family:'Orbitron',monospace;font-size:11px;color:var(--muted)">${y}</td>
-      <td style="color:var(--green);font-weight:600">${fmtNum(ev)}</td>
-      <td>${fmtNum(ice)}</td>
-      <td>${fmtNum(cs)}</td>
-      <td style="color:${gr > 50 ? 'var(--green)' : gr > 25 ? 'var(--yellow)' : 'var(--muted)'}">${gr > 0 ? '+'+gr+'%' : '—'}</td>
-      <td style="color:var(--blue)">${rng} km</td>
-    </tr>
-  `).join('');
-
-  const ctbody = document.getElementById('countryTable');
-  const sorted = [...countryData].sort((a,b) => b.ev - a.ev);
-  ctbody.innerHTML = sorted.map((d,i) => {
-    const reg = d.r.includes('APAC') ? 'apac' : d.r.includes('Europe') ? 'europe' : d.r.includes('America') && !d.r.includes('South') ? 'na' : d.r.includes('South') ? 'sa' : 'oceania';
-    return `<tr>
-      <td class="rank ${i<3?'top':''}">${i+1}</td>
-      <td>${d.c}</td>
-      <td><span class="region-pill ${reg}">${d.r}</span></td>
-      <td style="color:var(--green);font-weight:600">${fmtNum(d.ev)}</td>
-      <td style="color:var(--blue)">${fmtNum(d.ch)}</td>
-      <td style="color:var(--yellow)">${d.sub > 0 ? '$'+d.sub.toLocaleString() : '—'}</td>
-    </tr>`;
-  }).join('');
-}
-
-// ===== BUILD BUBBLE MAP =====
-function buildBubbleMap() {
-  const container = document.getElementById('bubbleMap');
-  const maxEv = Math.max(...countryData.map(d => d.ev));
-  countryData.forEach(d => {
-    const pos = bubblePositions[d.c];
-    if (!pos) return;
-    const size = Math.max(14, Math.sqrt(d.ev / maxEv) * 90);
-    const color = regionColors[d.r] || '#ffffff';
-    const bubble = document.createElement('div');
-    bubble.className = 'country-bubble';
-    bubble.style.cssText = `
-      left:${pos[0]}%;top:${pos[1]}%;
-      width:${size}px;height:${size}px;
-      background:${color}22;
-      border-color:${color}55;
-      margin-left:-${size/2}px;margin-top:-${size/2}px;
-      box-shadow:0 0 ${size/3}px ${color}33;
-    `;
-    const saleStr = d.ev >= 1e6 ? (d.ev/1e6).toFixed(1)+'M' : (d.ev/1e3).toFixed(0)+'K';
-    bubble.innerHTML = `<div class="bubble-label">${d.c}: ${saleStr}</div>`;
-    container.appendChild(bubble);
+// ===== SPARKLINES =====
+function sparkline(id, data, color, fill = true) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map((_,i) => i),
+      datasets: [{ data, borderColor: color, borderWidth: 1.5,
+        backgroundColor: fill ? color+'18' : 'transparent',
+        fill, tension: 0.4, pointRadius: 0 }]
+    },
+    options: {
+      responsive: false, animation: false,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: { x: { display: false }, y: { display: false } }
+    }
   });
 }
 
-// ===== CHARTS =====
-function initCharts() {
-
-  // 1. TREND LINE
-  new Chart(document.getElementById('trendChart'), {
+// ===== MAIN CHART =====
+function initMainChart() {
+  const ctx = document.getElementById('mainChart');
+  new Chart(ctx, {
     type: 'line',
     data: {
-      labels: years,
+      labels: YEARS,
       datasets: [
         {
           label: 'EV Sales',
-          data: evSales,
-          borderColor: '#00ff9f',
-          backgroundColor: 'rgba(0,255,159,0.06)',
-          borderWidth: 2,
-          fill: true,
-          tension: 0.4,
-          pointRadius: 3,
-          pointBackgroundColor: '#00ff9f',
+          data: EV,
+          borderColor: '#4F6EF7',
+          backgroundColor: 'rgba(79,110,247,0.08)',
+          borderWidth: 2.5,
+          fill: true, tension: 0.45, pointRadius: 3,
+          pointBackgroundColor: '#4F6EF7',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 1.5,
           yAxisID: 'y'
         },
         {
-          label: 'Petrol Sales',
-          data: petrolSales,
-          borderColor: '#ff6b2b',
-          backgroundColor: 'rgba(255,107,43,0.04)',
+          label: 'ICE Sales',
+          data: ICE,
+          borderColor: '#F97316',
+          backgroundColor: 'rgba(249,115,22,0.04)',
           borderWidth: 2,
-          fill: true,
-          tension: 0.4,
-          pointRadius: 2,
-          pointBackgroundColor: '#ff6b2b',
+          fill: true, tension: 0.45, pointRadius: 2,
+          pointBackgroundColor: '#F97316',
           yAxisID: 'y1'
         }
       ]
@@ -1362,402 +1027,280 @@ function initCharts() {
     options: {
       responsive: true,
       interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { labels: { color: '#6b7fa0', boxWidth: 12 } } },
-      scales: {
-        x: { grid: gridStyle, ticks: { maxTicksLimit: 8 } },
-        y: {
-          type: 'linear', position: 'left', grid: gridStyle,
-          title: { display: true, text: 'EV Sales', color: '#00ff9f', font: { size: 10 } },
-          ticks: { callback: v => fmtNum(v) }
-        },
-        y1: {
-          type: 'linear', position: 'right', grid: { display: false },
-          title: { display: true, text: 'Petrol Sales', color: '#ff6b2b', font: { size: 10 } },
-          ticks: { callback: v => fmtNum(v) }
-        }
-      }
-    }
-  });
-
-  // 2. REGIONAL DONUT
-  new Chart(document.getElementById('regionalDonut'), {
-    type: 'doughnut',
-    data: {
-      labels: ['APAC', 'Europe', 'N. America', 'Oceania', 'S. America'],
-      datasets: [{
-        data: [49709515, 15846180, 10004542, 507897, 254703],
-        backgroundColor: ['rgba(0,255,159,0.7)','rgba(0,200,255,0.7)','rgba(255,107,43,0.7)','rgba(167,139,250,0.7)','rgba(255,209,102,0.7)'],
-        borderColor: '#0f1623',
-        borderWidth: 3,
-        hoverOffset: 8
-      }]
-    },
-    options: {
-      cutout: '65%',
-      plugins: { legend: { display: false } },
-      responsive: true
-    }
-  });
-
-  // 3. TOP 5 BAR
-  new Chart(document.getElementById('top5Bar'), {
-    type: 'bar',
-    data: {
-      labels: ['China', 'United States', 'Germany', 'United Kingdom', 'France'],
-      datasets: [{
-        label: 'EV Sales (units)',
-        data: [46544667, 8705699, 4848735, 2450901, 2446101],
-        backgroundColor: [
-          'rgba(0,255,159,0.7)','rgba(0,200,255,0.6)','rgba(0,200,255,0.5)',
-          'rgba(0,200,255,0.4)','rgba(0,200,255,0.35)'
-        ],
-        borderColor: ['#00ff9f','#00c8ff','#00c8ff','#00c8ff','#00c8ff'],
-        borderWidth: 1,
-        borderRadius: 3
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: gridStyle, ticks: { callback: v => fmtNum(v) } },
-        y: { grid: { display: false } }
-      }
-    }
-  });
-
-  // 4. MARKET SHARE LINE
-  new Chart(document.getElementById('marketShareLine'), {
-    type: 'line',
-    data: {
-      labels: years,
-      datasets: [{
-        label: 'Avg EV Market Share Index',
-        data: avgMarketShare,
-        borderColor: '#00c8ff',
-        backgroundColor: 'rgba(0,200,255,0.05)',
-        fill: true, tension: 0.4, borderWidth: 2, pointRadius: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: gridStyle, ticks: { maxTicksLimit: 6 } },
-        y: { grid: gridStyle, ticks: { callback: v => v } }
-      }
-    }
-  });
-
-  // 5. CHARGING BAR
-  new Chart(document.getElementById('chargingBar'), {
-    type: 'bar',
-    data: {
-      labels: years,
-      datasets: [{
-        label: 'Charging Stations',
-        data: chargingStations,
-        backgroundColor: 'rgba(0,255,159,0.5)',
-        borderColor: '#00ff9f',
-        borderWidth: 1,
-        borderRadius: 2
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: gridStyle, ticks: { maxTicksLimit: 6 } },
-        y: { grid: gridStyle, ticks: { callback: v => fmtNum(v) } }
-      }
-    }
-  });
-
-  // 6. CROSSOVER (MANUFACTURERS)
-  new Chart(document.getElementById('crossoverChart'), {
-    type: 'line',
-    data: {
-      labels: years,
-      datasets: [
-        {
-          label: 'ICE Sales',
-          data: iceTotal,
-          borderColor: '#ff6b2b',
-          backgroundColor: 'rgba(255,107,43,0.07)',
-          fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 2
-        },
-        {
-          label: 'EV Sales (×10)',
-          data: evSales.map(v => v * 3),
-          borderColor: '#00ff9f',
-          backgroundColor: 'rgba(0,255,159,0.06)',
-          fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 2,
-          borderDash: [5,3]
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { color: '#6b7fa0', boxWidth: 12 } } },
-      scales: {
-        x: { grid: gridStyle, ticks: { maxTicksLimit: 8 } },
-        y: { grid: gridStyle, ticks: { callback: v => fmtNum(v) } }
-      }
-    }
-  });
-
-  // 7. SEGMENT STACKED
-  new Chart(document.getElementById('segmentChart'), {
-    type: 'bar',
-    data: {
-      labels: years,
-      datasets: [
-        { label: 'Mass Market', data: segmentData.massMarket, backgroundColor: 'rgba(0,255,159,0.65)', borderRadius: 2 },
-        { label: 'Premium', data: segmentData.premium, backgroundColor: 'rgba(0,200,255,0.55)', borderRadius: 2 },
-        { label: 'Commercial', data: segmentData.commercial, backgroundColor: 'rgba(255,107,43,0.5)', borderRadius: 2 }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { color: '#6b7fa0', boxWidth: 10, font: { size: 11 } } } },
-      scales: {
-        x: { stacked: true, grid: gridStyle, ticks: { maxTicksLimit: 8 } },
-        y: { stacked: true, grid: gridStyle, ticks: { callback: v => fmtNum(v) } }
-      }
-    }
-  });
-
-  // 8. RANGE EVOLUTION
-  new Chart(document.getElementById('rangeChart'), {
-    type: 'line',
-    data: {
-      labels: years,
-      datasets: [{
-        label: 'Avg EV Range (km)',
-        data: avgRange,
-        borderColor: '#a78bfa',
-        backgroundColor: 'rgba(167,139,250,0.08)',
-        fill: true, tension: 0.4, borderWidth: 2, pointRadius: 3,
-        pointBackgroundColor: '#a78bfa'
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: gridStyle, ticks: { maxTicksLimit: 6 } },
-        y: { grid: gridStyle, ticks: { callback: v => v + ' km' } }
-      }
-    }
-  });
-
-  // 9. SUBSIDY BAR
-  new Chart(document.getElementById('subsidyBar'), {
-    type: 'bar',
-    data: {
-      labels: ['USA','S. Korea','China','Japan','Canada','France','Germany','Spain'],
-      datasets: [{
-        label: 'Avg Subsidy (USD)',
-        data: [7490, 4740, 5818, 4625, 4622, 5775, 3572, 4392],
-        backgroundColor: 'rgba(255,209,102,0.6)',
-        borderColor: '#ffd166',
-        borderWidth: 1,
-        borderRadius: 3
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: gridStyle, ticks: { callback: v => '$' + v.toLocaleString() } },
-        y: { grid: { display: false } }
-      }
-    }
-  });
-
-  // 10. SHARE EVOLUTION
-  const evSharePct = evSales.map((ev, i) => ((ev / (ev + iceTotal[i])) * 100).toFixed(2));
-  const iceSharePct = evSharePct.map(s => (100 - s).toFixed(2));
-  new Chart(document.getElementById('shareEvolutionChart'), {
-    type: 'line',
-    data: {
-      labels: years,
-      datasets: [
-        {
-          label: 'EV Share %',
-          data: evSharePct,
-          borderColor: '#00ff9f',
-          backgroundColor: 'rgba(0,255,159,0.08)',
-          fill: true, tension: 0.4, borderWidth: 2, pointRadius: 2
-        },
-        {
-          label: 'ICE Share %',
-          data: iceSharePct,
-          borderColor: '#ff6b2b',
-          backgroundColor: 'rgba(255,107,43,0.05)',
-          fill: true, tension: 0.4, borderWidth: 2, pointRadius: 2
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { color: '#6b7fa0', boxWidth: 12 } } },
-      scales: {
-        x: { grid: gridStyle, ticks: { maxTicksLimit: 8 } },
-        y: { grid: gridStyle, ticks: { callback: v => v + '%' }, max: 100 }
-      }
-    }
-  });
-
-  // 11. GROWTH RATE BAR (investors)
-  new Chart(document.getElementById('growthRateChart'), {
-    type: 'bar',
-    data: {
-      labels: years.slice(1),
-      datasets: [{
-        label: 'YoY Growth %',
-        data: growthRate.slice(1),
-        backgroundColor: growthRate.slice(1).map(v =>
-          v > 100 ? 'rgba(0,255,159,0.8)' : v > 50 ? 'rgba(0,255,159,0.55)' : v > 25 ? 'rgba(255,209,102,0.6)' : 'rgba(255,107,43,0.5)'
-        ),
-        borderRadius: 3
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: gridStyle },
-        y: { grid: gridStyle, ticks: { callback: v => v + '%' } }
-      }
-    }
-  });
-
-  // 12. SUBSIDY SCATTER
-  new Chart(document.getElementById('subsidyScatter'), {
-    type: 'scatter',
-    data: {
-      datasets: [{
-        label: 'Countries',
-        data: countryData.map(d => ({ x: d.sub, y: d.ev / 1e6, label: d.c })),
-        backgroundColor: countryData.map(d => {
-          const c = regionColors[d.r] || '#ffffff';
-          return c + '99';
-        }),
-        borderColor: countryData.map(d => regionColors[d.r] || '#ffffff'),
-        pointRadius: countryData.map(d => Math.max(5, Math.sqrt(d.ev / 200000))),
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
       plugins: {
         legend: { display: false },
         tooltip: {
+          backgroundColor: '#fff',
+          titleColor: '#111827',
+          bodyColor: '#6B7280',
+          borderColor: '#E5E7EB',
+          borderWidth: 1,
+          padding: 10,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
           callbacks: {
-            label: ctx => {
-              const d = countryData[ctx.dataIndex];
-              return `${d.c}: $${d.sub.toLocaleString()} subsidy, ${(d.ev/1e6).toFixed(2)}M sales`;
-            }
+            label: ctx => ` ${ctx.dataset.label}: ${fmtM(ctx.raw)}`
           }
         }
       },
       scales: {
-        x: { grid: gridStyle, title: { display: true, text: 'Avg Subsidy (USD)', color: '#6b7fa0', font: { size: 11 } } },
-        y: { grid: gridStyle, title: { display: true, text: 'Total EV Sales (M)', color: '#6b7fa0', font: { size: 11 } }, ticks: { callback: v => v + 'M' } }
-      }
-    }
-  });
-
-  // 13. CHARGING CAGR BAR
-  new Chart(document.getElementById('chargingCagr'), {
-    type: 'bar',
-    data: {
-      labels: ['APAC', 'Europe', 'N. America', 'Oceania', 'S. America'],
-      datasets: [{
-        label: 'Total Charging Stations',
-        data: [52390083, 13166217, 2495313, 153510, 121653],
-        backgroundColor: ['rgba(0,255,159,0.65)','rgba(0,200,255,0.55)','rgba(255,107,43,0.5)','rgba(167,139,250,0.5)','rgba(255,209,102,0.5)'],
-        borderRadius: 4
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { grid: { display: false } },
-        y: { grid: gridStyle, ticks: { callback: v => fmtNum(v) } }
-      }
-    }
-  });
-
-  // 14. MOMENTUM CHART
-  new Chart(document.getElementById('momentumChart'), {
-    type: 'line',
-    data: {
-      labels: ['2021','2022','2023','2024','2025'],
-      datasets: [
-        { label: 'EV', data: [6503062,9933342,13283873,16605356,19673169], borderColor: '#00ff9f', backgroundColor: 'rgba(0,255,159,0.08)', fill: true, tension: 0.4, borderWidth: 2.5, pointRadius: 4 },
-        { label: 'Petrol', data: [53525919,50372745,54899792,53963902,52113431], borderColor: '#ff6b2b', backgroundColor: 'rgba(255,107,43,0.04)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 3 }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { color: '#6b7fa0', boxWidth: 10, font: { size: 11 } } } },
-      scales: {
-        x: { grid: gridStyle },
-        y: { grid: gridStyle, ticks: { callback: v => fmtNum(v) } }
-      }
-    }
-  });
-
-  // 15. COST COMPARE
-  new Chart(document.getElementById('costCompareChart'), {
-    type: 'bar',
-    data: {
-      labels: ['China', 'USA', 'Germany', 'France', 'Japan', 'India', 'Australia', 'Norway'],
-      datasets: [
-        {
-          label: 'Fuel Price (USD/L)',
-          data: [1.23, 0.95, 1.71, 1.82, 1.65, 0.95, 1.55, 1.90],
-          backgroundColor: 'rgba(255,107,43,0.65)',
-          borderRadius: 3,
-          yAxisID: 'y'
-        },
-        {
-          label: 'Electricity (USD/kWh)',
-          data: [0.082, 0.132, 0.318, 0.225, 0.244, 0.091, 0.229, 0.189],
-          backgroundColor: 'rgba(0,255,159,0.6)',
-          borderRadius: 3,
-          yAxisID: 'y1'
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { color: '#6b7fa0', boxWidth: 10 } } },
-      scales: {
-        x: { grid: { display: false } },
+        x: { grid: { display: false }, border: { display: false }, ticks: { maxTicksLimit: 8, font: { size: 11 } } },
         y: {
-          type: 'linear', position: 'left', grid: gridStyle,
-          title: { display: true, text: 'Fuel (USD/L)', color: '#ff6b2b', font: { size: 10 } }
+          type: 'linear', position: 'left',
+          grid: { color: '#F3F4F6', drawBorder: false },
+          border: { display: false },
+          ticks: { callback: v => fmtM(v), maxTicksLimit: 5, font: { size: 11 } }
         },
         y1: {
-          type: 'linear', position: 'right', grid: { display: false },
-          title: { display: true, text: 'Electricity (USD/kWh)', color: '#00ff9f', font: { size: 10 } }
+          type: 'linear', position: 'right',
+          grid: { display: false }, border: { display: false },
+          ticks: { callback: v => fmtM(v), maxTicksLimit: 5, font: { size: 11 } }
         }
       }
     }
   });
 }
 
+// ===== RADAR =====
+function initRadar() {
+  new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: {
+      labels: ['APAC', 'Europe', 'N.Am', 'Oceania', 'S.Am'],
+      datasets: [
+        { label: 'Infrastructure', data: [94, 88, 55, 20, 15],
+          borderColor: '#4F6EF7', backgroundColor: 'rgba(79,110,247,0.12)',
+          borderWidth: 1.5, pointRadius: 3, pointBackgroundColor: '#4F6EF7' },
+        { label: 'Sales', data: [98, 70, 60, 12, 8],
+          borderColor: '#22C55E', backgroundColor: 'rgba(34,197,94,0.08)',
+          borderWidth: 1.5, pointRadius: 3, pointBackgroundColor: '#22C55E' },
+        { label: 'Policy', data: [80, 92, 72, 35, 20],
+          borderColor: '#F97316', backgroundColor: 'rgba(249,115,22,0.07)',
+          borderWidth: 1.5, pointRadius: 3, pointBackgroundColor: '#F97316' }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        r: {
+          grid: { color: '#F3F4F6' },
+          ticks: { display: false, stepSize: 20 },
+          pointLabels: { font: { size: 10, weight: '600' }, color: '#6B7280' },
+          min: 0, max: 100,
+          angleLines: { color: '#F3F4F6' }
+        }
+      }
+    }
+  });
+}
+
+// ===== STAT ROWS (right panel) =====
+function buildStatRows() {
+  const top3 = [
+    { name: 'China · APAC', sub: '12.9M units in 2025', pct: 38, color: '#4F6EF7', val: '12.9M' },
+    { name: 'United States', sub: '2.1M units in 2025', pct: 11.5, color: '#22C55E', val: '2.1M' },
+    { name: 'Germany', sub: '934K units in 2025', pct: 29.8, color: '#F97316', val: '934K' }
+  ];
+  const rows = document.getElementById('statRows');
+  rows.innerHTML = top3.map(s => `
+    <div class="stat-row">
+      <div class="stat-ring-wrap">
+        <canvas id="ring_${s.name.replace(/\s/g,'_')}" width="44" height="44"></canvas>
+        <div class="stat-ring-pct">${s.pct}%</div>
+      </div>
+      <div style="flex:1">
+        <div class="stat-name">${s.name}</div>
+        <div class="stat-sub">${s.sub}</div>
+      </div>
+      <div class="stat-val">${s.val}</div>
+    </div>
+  `).join('');
+  // Draw rings
+  top3.forEach(s => {
+    const id = 'ring_' + s.name.replace(/\s/g,'_');
+    new Chart(document.getElementById(id), {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: [s.pct, 100 - s.pct],
+          backgroundColor: [s.color, '#F3F4F6'],
+          borderWidth: 0
+        }]
+      },
+      options: {
+        cutout: '72%', responsive: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        animation: { duration: 1000 }
+      }
+    });
+  });
+}
+
+// ===== COST CHART =====
+function initCostChart() {
+  new Chart(document.getElementById('costChart'), {
+    type: 'bar',
+    data: {
+      labels: ['China','USA','Germany','India','Norway'],
+      datasets: [
+        { label: 'EV ($/100km)', data: [1.4, 2.2, 5.3, 1.5, 3.1],
+          backgroundColor: 'rgba(79,110,247,0.7)', borderRadius: 4, borderSkipped: false },
+        { label: 'ICE ($/100km)', data: [4.5, 6.8, 9.1, 5.0, 10.2],
+          backgroundColor: 'rgba(249,115,22,0.6)', borderRadius: 4, borderSkipped: false }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 10 }, padding: 8, color: '#6B7280' } },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: $${ctx.raw}` } }
+      },
+      scales: {
+        x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 10 } } },
+        y: { grid: { color: '#F3F4F6' }, border: { display: false }, ticks: { callback: v => '$'+v, font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+// ===== PIVOT DONUT =====
+function initPivotDonut() {
+  new Chart(document.getElementById('pivotDonut'), {
+    type: 'doughnut',
+    data: {
+      labels: ['APAC','Europe','N. America','Oceania','S. America'],
+      datasets: [{
+        data: [49709515, 15846180, 10004542, 507897, 254703],
+        backgroundColor: ['#4F6EF7','#22C55E','#F97316','#8B5CF6','#F59E0B'],
+        borderWidth: 2, borderColor: '#fff', hoverOffset: 4
+      }]
+    },
+    options: {
+      cutout: '60%', responsive: true,
+      plugins: { legend: { display: false }, tooltip: {
+        callbacks: { label: ctx => ` ${ctx.label}: ${fmtM(ctx.raw)}` }
+      }}
+    }
+  });
+}
+
+// ===== RANGE SPARKLINE =====
+function initRangeSparkline() {
+  new Chart(document.getElementById('rangeSparkline'), {
+    type: 'line',
+    data: {
+      labels: YEARS,
+      datasets: [{
+        data: RANGE,
+        borderColor: '#4F6EF7',
+        backgroundColor: 'rgba(79,110,247,0.07)',
+        fill: true, tension: 0.4, borderWidth: 2,
+        pointRadius: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      scales: {
+        x: { display: false },
+        y: { display: false }
+      }
+    }
+  });
+}
+
+// ===== COUNTRY TABLE =====
+function buildCountryTable() {
+  const tbody = document.getElementById('countryTbody');
+  const regMap = { apac:'tag-apac', eu:'tag-eu', na:'tag-na', oc:'tag-oc', sa:'tag-sa' };
+  tbody.innerHTML = COUNTRIES.map((d,i) => {
+    const rankClass = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const regClass = regMap[d.rt] || 'tag-eu';
+    const barW = Math.round((d.ev / 46544667) * 70);
+    return `
+    <tr>
+      <td><span class="rank-num ${rankClass}">${i+1}</span></td>
+      <td><span class="country-flag"><span class="flag-icon">${d.flag}</span>${d.c}</span></td>
+      <td><span class="tag-pill ${regClass}">${d.r}</span></td>
+      <td class="val-green">${fmtM(d.ev)}</td>
+      <td class="val-blue">${fmtM(d.ch)}</td>
+      <td style="color:var(--amber);font-family:'DM Mono',monospace;font-size:12px">${d.sub > 0 ? '$'+d.sub.toLocaleString() : '—'}</td>
+      <td style="color:var(--text2);font-family:'DM Mono',monospace;font-size:12px">${d.ms}</td>
+      <td>
+        <div class="trend-bar-bg">
+          <div class="trend-bar-fill" style="width:${barW}px;background:${i<3?'#4F6EF7':i<7?'#22C55E':'#9CA3AF'}"></div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ===== ANNUAL TABLE =====
+function buildAnnualTable() {
+  const tbl = document.getElementById('annualTbl');
+  const rows = [
+    [2010,20139,61252194,148,0,120,'—'],
+    [2011,68532,64160475,578,151,128,'▲'],
+    [2012,120099,67311950,1017,67,139,'▲'],
+    [2013,229508,69833064,1475,95,143,'▲'],
+    [2014,324688,71809178,3842,80,153,'▲'],
+    [2015,530272,74737212,6032,59,169,'▲'],
+    [2016,741256,77547040,10812,45,188,'▲'],
+    [2017,1343059,79448444,15729,65,217,'▲'],
+    [2018,1922263,77137651,25437,45,259,'▲'],
+    [2019,2034750,75272879,33655,51,295,'▲'],
+    [2020,2989469,63806517,53150,75,336,'▲'],
+    [2021,6503062,63366355,69704,107,366,'▲'],
+    [2022,9933342,59780188,105017,85,396,'▲'],
+    [2023,13283873,65212497,144995,51,423,'▲'],
+    [2024,16605356,64234431,202439,25,449,'▲'],
+    [2025,19673169,62181724,236994,22,471,'▲']
+  ];
+  tbl.innerHTML = `<thead><tr>
+    <th>Year</th><th>EV Sales</th><th>ICE Sales</th><th>Chargers</th><th>YoY Growth</th><th>Avg Range</th><th>Trend</th>
+  </tr></thead><tbody>${rows.map(([y,ev,ice,ch,gr,rng,t]) => `
+    <tr>
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted2);font-weight:600">${y}</td>
+      <td class="val-green">${fmtM(ev)}</td>
+      <td style="color:var(--muted2);font-family:'DM Mono',monospace;font-size:12px">${fmtM(ice)}</td>
+      <td class="val-blue">${fmtM(ch)}</td>
+      <td>
+        <span class="kpi-badge ${gr>50?'up':gr>0?'neutral':'down'}" style="font-size:10px">
+          ${gr>0?'▲'+gr+'%':'—'}
+        </span>
+      </td>
+      <td style="font-family:'DM Mono',monospace;font-size:12px;color:var(--purple)">${rng} km</td>
+      <td style="color:${gr>50?'#22C55E':gr>25?'#F59E0B':'#9CA3AF'};font-size:11px;font-weight:700">${gr>0?'▲ Growing':'—'}</td>
+    </tr>
+  `).join('')}</tbody>`;
+}
+
+// ===== INTERACTIONS =====
+function switchTab(val, btn) {
+  document.querySelectorAll('.npill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function setView(v, btn) {
+  document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function toggleAllRows() { /* expand table - placeholder */ }
+
 // ===== INIT =====
-document.addEventListener('DOMContentLoaded', () => {
-  buildTables();
-  buildBubbleMap();
-  initCharts();
+window.addEventListener('DOMContentLoaded', () => {
+  sparkline('sp1', EV.slice(-8), '#ffffff', false);
+  sparkline('sp2', CHARGERS.slice(-8), '#4F6EF7');
+  sparkline('sp3', [3200,3100,3050,3100,3000,3050,3124,3100], '#F59E0B');
+  sparkline('sp4', ICE.slice(-8), '#EF4444');
+
+  initMainChart();
+  initRadar();
+  buildStatRows();
+  initCostChart();
+  initPivotDonut();
+  initRangeSparkline();
+  buildCountryTable();
+  buildAnnualTable();
 });
 </script>
 </body>
