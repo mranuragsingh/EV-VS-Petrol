@@ -686,9 +686,6 @@ body {
   <div class="sidebar-icon" title="Analytics">📈</div>
   <div class="sidebar-icon" title="Markets">🌏</div>
   <div class="sidebar-icon" title="Reports">📋</div>
-  <div class="sidebar-divider"></div>
-  <div class="sidebar-icon" title="Settings">⚙️</div>
-  <div class="sidebar-icon" title="Help">💬</div>
   <div class="sidebar-bottom">
     <div class="avatar" onclick="toggleProfile(event)" id="avatarBtn" title="View Profile">PB</div>
   </div>
@@ -821,47 +818,115 @@ body {
         </div>
       </div>
 
-      <!-- COUNTRY TABLE -->
-      <div class="chart-card" style="padding:0">
-        <div style="padding:20px 22px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F3F4F6;background:#fff;border-radius:14px 14px 0 0">
-          <div>
-            <span style="font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:#111827">Country Performance Matrix</span>
-            <span style="font-size:11px;font-weight:400;color:#9CA3AF;margin-left:6px;font-family:'Figtree',sans-serif">Top 7 markets · All-time</span>
-          </div>
-          <button onclick="openCountryModal()" style="font-size:12px;color:#4F6EF7;font-weight:700;cursor:pointer;border:1px solid #EEF1FF;background:#EEF1FF;border-radius:7px;padding:5px 12px;font-family:'Figtree',sans-serif;transition:all 0.2s" onmouseover="this.style.background='#4F6EF7';this.style.color='#fff'" onmouseout="this.style.background='#EEF1FF';this.style.color='#4F6EF7'">View All 25 ↗</button>
-        </div>
-        <div style="overflow-y:auto;max-height:320px;overflow-x:auto">
-          <table class="data-table country-main-table" style="width:100%">
-            <thead class="sticky-thead">
-              <tr>
-                <th style="width:32px">#</th>
-                <th>Country</th>
-                <th>Region</th>
-                <th>EV Sales</th>
-                <th>Charging</th>
-                <th>Subsidy</th>
-                <th>Market Share '25</th>
-                <th>Trend</th>
-              </tr>
-            </thead>
-            <tbody id="countryTbody"></tbody>
-          </table>
-        </div>
-      </div>
+      <!-- COUNTRY TABLE + SIDE WIDGETS in a grid -->
+      <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start">
 
-      <!-- ANNUAL TABLE -->
-      <div class="chart-card">
-        <div class="sec-head">
-          <span class="sec-title">Annual Global Metrics <span class="sec-sub">2010–2025 · Finance ledger view</span></span>
+        <!-- LEFT: tables -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+
+          <!-- COUNTRY TABLE -->
+          <div class="chart-card" style="padding:0">
+            <div style="padding:20px 22px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F3F4F6;background:#fff;border-radius:14px 14px 0 0">
+              <div>
+                <span style="font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:#111827">Country Performance Matrix</span>
+                <span style="font-size:11px;font-weight:400;color:#9CA3AF;margin-left:6px;font-family:'Figtree',sans-serif">Top 7 markets · All-time</span>
+              </div>
+              <button onclick="openCountryModal()" style="font-size:12px;color:#4F6EF7;font-weight:700;cursor:pointer;border:1px solid #EEF1FF;background:#EEF1FF;border-radius:7px;padding:5px 12px;font-family:'Figtree',sans-serif;transition:all 0.2s" onmouseover="this.style.background='#4F6EF7';this.style.color='#fff'" onmouseout="this.style.background='#EEF1FF';this.style.color='#4F6EF7'">View All 25 ↗</button>
+            </div>
+            <div style="overflow-y:auto;max-height:320px;overflow-x:auto">
+              <table class="data-table country-main-table" style="width:100%">
+                <thead class="sticky-thead">
+                  <tr>
+                    <th style="width:32px">#</th>
+                    <th>Country</th>
+                    <th>Region</th>
+                    <th>EV Sales</th>
+                    <th>Charging</th>
+                    <th>Subsidy</th>
+                    <th>Market Share '25</th>
+                    <th>Trend</th>
+                  </tr>
+                </thead>
+                <tbody id="countryTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ANNUAL TABLE -->
+          <div class="chart-card">
+            <div class="sec-head">
+              <span class="sec-title">Annual Global Metrics <span class="sec-sub">2010–2025 · Finance ledger view</span></span>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table" id="annualTbl"></table>
+            </div>
+          </div>
+
         </div>
-        <div class="table-scroll">
-          <table class="data-table" id="annualTbl"></table>
+
+        <!-- RIGHT: widgets stacked -->
+        <div style="display:flex;flex-direction:column;gap:14px">
+
+          <!-- RADAR -->
+          <div class="rpanel-card">
+            <div class="rpanel-title">Regional Readiness <div class="more-btn">···</div></div>
+            <canvas id="radarChart" height="180"></canvas>
+            <div class="radar-labels">
+              <div class="radar-litem"><div class="radar-dot" style="background:#4F6EF7"></div>Infrastructure</div>
+              <div class="radar-litem"><div class="radar-dot" style="background:#22C55E"></div>Sales Volume</div>
+              <div class="radar-litem"><div class="radar-dot" style="background:#F97316"></div>Policy Support</div>
+            </div>
+          </div>
+
+          <!-- TOP MARKETS -->
+          <div class="rpanel-card">
+            <div class="rpanel-title">Top Markets · 2025 <div class="more-btn">···</div></div>
+            <div id="statRows"></div>
+          </div>
+
+          <!-- COST -->
+          <div class="rpanel-card">
+            <div class="rpanel-title">Running Cost / 100km <div class="more-btn">···</div></div>
+            <canvas id="costChart" height="160"></canvas>
+          </div>
+
+          <!-- DONUT -->
+          <div class="rpanel-card">
+            <div class="rpanel-title">Revenue Exposure by Region</div>
+            <canvas id="pivotDonut" height="130"></canvas>
+            <div style="margin-top:12px">
+              <div class="divider"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px">
+                <div class="pulse-cell"><div class="pulse-val" style="color:#4F6EF7">65.1%</div><div class="pulse-label">APAC Share</div></div>
+                <div class="pulse-cell"><div class="pulse-val" style="color:#22C55E">20.8%</div><div class="pulse-label">Europe Share</div></div>
+                <div class="pulse-cell"><div class="pulse-val" style="color:#F97316">13.1%</div><div class="pulse-label">N. America</div></div>
+                <div class="pulse-cell"><div class="pulse-val" style="color:#8B5CF6">1.0%</div><div class="pulse-label">Other</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RANGE -->
+          <div class="rpanel-card">
+            <div class="rpanel-title">Avg EV Range Evolution</div>
+            <div class="pulse-grid" style="grid-template-columns:1fr 1fr">
+              <div class="pulse-cell">
+                <div class="pulse-val" style="color:var(--accent)">120<span style="font-size:11px">km</span></div>
+                <div class="pulse-label">2010 Avg Range</div>
+              </div>
+              <div class="pulse-cell">
+                <div class="pulse-val" style="color:var(--green)">471<span style="font-size:11px">km</span></div>
+                <div class="pulse-label">2025 Avg Range</div>
+              </div>
+            </div>
+            <div style="margin-top:12px">
+              <canvas id="rangeSparkline" height="60"></canvas>
+            </div>
+          </div>
+
         </div>
       </div>
 
       </div><!-- end #page-all -->
-
-      <!-- APAC PAGE -->
       <div id="page-apac" style="display:none;flex-direction:column;gap:16px">
 
         <!-- APAC Hero Banner -->
@@ -1093,78 +1158,9 @@ body {
         </div>
 
       </div><!-- end #page-emerging -->
-    <div class="content-right">
-
-      <!-- RADAR -->
-      <div class="rpanel-card">
-        <div class="rpanel-title">
-          Regional Readiness
-          <div class="more-btn">···</div>
-        </div>
-        <canvas id="radarChart" height="180"></canvas>
-        <div class="radar-labels">
-          <div class="radar-litem"><div class="radar-dot" style="background:#4F6EF7"></div>Infrastructure</div>
-          <div class="radar-litem"><div class="radar-dot" style="background:#22C55E"></div>Sales Volume</div>
-          <div class="radar-litem"><div class="radar-dot" style="background:#F97316"></div>Policy Support</div>
-        </div>
-      </div>
-
-      <!-- STATS -->
-      <div class="rpanel-card">
-        <div class="rpanel-title">
-          Top Markets · 2025
-          <div class="more-btn">···</div>
-        </div>
-        <div id="statRows"></div>
-      </div>
-
-      <!-- COST CARD -->
-      <div class="rpanel-card">
-        <div class="rpanel-title">
-          Running Cost / 100km
-          <div class="more-btn">···</div>
-        </div>
-        <canvas id="costChart" height="160"></canvas>
-      </div>
-
-      <!-- PIVOT SUMMARY -->
-      <div class="rpanel-card">
-        <div class="rpanel-title">Revenue Exposure by Region</div>
-        <canvas id="pivotDonut" height="130"></canvas>
-        <div style="margin-top:12px">
-          <div class="divider"></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px">
-            <div class="pulse-cell"><div class="pulse-val" style="color:#4F6EF7">65.1%</div><div class="pulse-label">APAC Share</div></div>
-            <div class="pulse-cell"><div class="pulse-val" style="color:#22C55E">20.8%</div><div class="pulse-label">Europe Share</div></div>
-            <div class="pulse-cell"><div class="pulse-val" style="color:#F97316">13.1%</div><div class="pulse-label">N. America</div></div>
-            <div class="pulse-cell"><div class="pulse-val" style="color:#8B5CF6">1.0%</div><div class="pulse-label">Other</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- RANGE PROGRESS -->
-      <div class="rpanel-card">
-        <div class="rpanel-title">Avg EV Range Evolution</div>
-        <div class="pulse-grid" style="grid-template-columns:1fr 1fr">
-          <div class="pulse-cell">
-            <div class="pulse-val" style="color:var(--accent)">120<span style="font-size:11px">km</span></div>
-            <div class="pulse-label">2010 Avg Range</div>
-          </div>
-          <div class="pulse-cell">
-            <div class="pulse-val" style="color:var(--green)">471<span style="font-size:11px">km</span></div>
-            <div class="pulse-label">2025 Avg Range</div>
-          </div>
-        </div>
-        <div style="margin-top:12px">
-          <canvas id="rangeSparkline" height="60"></canvas>
-        </div>
-      </div>
-
-    </div>
   </div>
 </div>
 
-</div>
 
 <script>
 // ===== DATA =====
@@ -1784,6 +1780,35 @@ function buildEmergingCharts() {
 function setView(v, btn) {
   document.querySelectorAll('.ptab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+}
+
+// Profile popup — defined here so always available
+function toggleProfile(e) {
+  e.stopPropagation();
+  const card = document.getElementById('profileCard');
+  const overlay = document.getElementById('profileOverlay');
+  if (!card || !overlay) return;
+  if (card.style.display === 'none' || !card.style.display) {
+    card.style.display = 'block';
+    overlay.style.display = 'block';
+    card.style.animation = 'pcSlideIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both';
+  } else {
+    closeProfileCard();
+  }
+}
+function closeProfile(e) {
+  const card = document.getElementById('profileCard');
+  if (card && !card.contains(e.target)) closeProfileCard();
+}
+function closeProfileCard() {
+  const card = document.getElementById('profileCard');
+  const overlay = document.getElementById('profileOverlay');
+  if (!card) return;
+  card.style.animation = 'pcSlideOut 0.2s ease forwards';
+  setTimeout(() => {
+    card.style.display = 'none';
+    if (overlay) overlay.style.display = 'none';
+  }, 180);
 }
 function toggleAllRows() { /* expand table - placeholder */ }
 
@@ -2553,7 +2578,7 @@ function closeStory() {
 }
 </style>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 function toggleProfile(e) {
   e.stopPropagation();
   const card = document.getElementById('profileCard');
@@ -2570,4 +2595,14 @@ function closeProfile(e) {
   if (!document.getElementById('profileCard').contains(e.target)) closeProfileCard();
 }
 function closeProfileCard() {
-  const card = document.getElementById('profil
+  const card = document.getElementById('profileCard');
+  const overlay = document.getElementById('profileOverlay');
+  card.style.animation = 'pcSlideOut 0.2s ease forwards';
+  setTimeout(() => {
+    card.style.display = 'none';
+    overlay.style.display = 'none';
+  }, 180);
+}
+</script>
+</body>
+</html>
