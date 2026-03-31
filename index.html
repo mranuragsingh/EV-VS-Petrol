@@ -708,7 +708,21 @@ body {
     <div>
       <div class="topbar-title">EV Market Intelligence</div>
     </div>
-    <div class="search-box">🔍 &nbsp;Search country, metric, year…</div>
+    <div style="position:relative;margin-left:20px;flex:1;max-width:320px" id="searchWrapper">
+      <div style="display:flex;align-items:center;gap:8px;height:36px;background:#F0F2F8;border:1.5px solid #D1D5DB;border-radius:8px;padding:0 12px;box-shadow:inset 0 1px 3px rgba(0,0,0,0.06);transition:border-color 0.2s" id="searchBoxEl">
+        <span style="font-size:14px;flex-shrink:0">🔍</span>
+        <input id="searchInput" type="text" placeholder="Search country, metric, year…"
+          style="border:none;background:transparent;outline:none;font-size:13px;color:#374151;font-family:'Figtree',sans-serif;width:100%;caret-color:#4F6EF7"
+          oninput="handleSearch(this.value)"
+          onkeydown="if(event.key==='Enter') submitSearch(this.value)"
+          onfocus="document.getElementById('searchBoxEl').style.borderColor='#4F6EF7'"
+          onblur="setTimeout(()=>{document.getElementById('searchBoxEl').style.borderColor='#D1D5DB';document.getElementById('searchDropdown').style.display='none'},200)"
+        />
+        <span id="searchClear" onclick="clearSearch()" style="cursor:pointer;color:#9CA3AF;font-size:16px;display:none">×</span>
+      </div>
+      <!-- Dropdown -->
+      <div id="searchDropdown" style="display:none;position:absolute;top:42px;left:0;right:0;background:#fff;border:1px solid #E5E7EB;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.12);z-index:9999;overflow:hidden;font-family:'Figtree',sans-serif"></div>
+    </div>
 
   </div>
 
@@ -2587,7 +2601,7 @@ function closeStory() {
       <div class="pc-status-dot"></div>
     </div>
     <div class="pc-name">Priyanka Baluni</div>
-    <div class="pc-role">Finance & EV Market Analyst</div>
+    <div class="pc-role">Data & Research Analyst</div>
     <div class="pc-tags">
       <span class="pc-tag">📊 Finance</span>
       <span class="pc-tag">⚡ EV Markets</span>
@@ -3072,6 +3086,403 @@ function closeAudience() {
     document.querySelectorAll('.sidebar-icon').forEach((b,i) => {
       b.classList.toggle('active', i === 0);
     });
+  }, 200);
+}
+</script>
+<!-- COUNTRY SPOTLIGHT MODAL -->
+<div id="spotlightBackdrop" onclick="closeSpotlight()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(17,24,39,0.55);backdrop-filter:blur(4px);z-index:99998"></div>
+<div id="spotlightModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:99999;width:min(680px,95vw);max-height:90vh;overflow-y:auto;border-radius:20px;background:#fff;box-shadow:0 32px 80px rgba(0,0,0,0.2);font-family:'Figtree',sans-serif">
+  <div id="spotlightInner"></div>
+</div>
+
+<style>
+.search-result-item {
+  display:flex;align-items:center;gap:12px;padding:10px 16px;cursor:pointer;transition:background 0.15s;border-bottom:1px solid #F9FAFB;
+}
+.search-result-item:hover { background:#F0F2F8; }
+.search-result-item:last-child { border-bottom:none; }
+.sri-flag { font-size:20px;flex-shrink:0; }
+.sri-name { font-size:13px;font-weight:600;color:#111827; }
+.sri-sub { font-size:11px;color:#9CA3AF; }
+.sri-badge { margin-left:auto;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px; }
+.not-found-box { padding:20px 16px;text-align:center; }
+</style>
+
+<script>
+// Full country search data
+const SEARCH_COUNTRIES = [
+  {c:'China',         flag:'🇨🇳', r:'APAC',    rt:'apac', ev:46544667, ch:4338106, sub:5818, ms:'38.0%', msv:38, gdp:12720, co2:9200, range:487, chargeGrowth:'1,601×'},
+  {c:'United States', flag:'🇺🇸', r:'N.Am',    rt:'na',   ev:8705699,  ch:131267,  sub:7490, ms:'11.5%', msv:11.5, gdp:76330, co2:4900, range:463, chargeGrowth:'887×'},
+  {c:'Germany',       flag:'🇩🇪', r:'Europe',  rt:'eu',   ev:4848735,  ch:185439,  sub:3572, ms:'29.8%', msv:29.8, gdp:51380, co2:625, range:455, chargeGrowth:'2,340×'},
+  {c:'United Kingdom',flag:'🇬🇧', r:'Europe',  rt:'eu',   ev:2450901,  ch:82665,   sub:3325, ms:'23.6%', msv:23.6, gdp:46125, co2:334, range:449, chargeGrowth:'1,100×'},
+  {c:'France',        flag:'🇫🇷', r:'Europe',  rt:'eu',   ev:2446101,  ch:171174,  sub:5775, ms:'24.0%', msv:24,   gdp:43660, co2:122, range:451, chargeGrowth:'2,280×'},
+  {c:'Canada',        flag:'🇨🇦', r:'N.Am',    rt:'na',   ev:1166676,  ch:48202,   sub:4622, ms:'15.1%', msv:15.1, gdp:54968, co2:188, range:458, chargeGrowth:'643×'},
+  {c:'South Korea',   flag:'🇰🇷', r:'APAC',    rt:'apac', ev:1140878,  ch:249268,  sub:4740, ms:'14.5%', msv:14.5, gdp:33590, co2:267, range:441, chargeGrowth:'3,322×'},
+  {c:'Japan',         flag:'🇯🇵', r:'APAC',    rt:'apac', ev:1087957,  ch:49260,   sub:4625, ms:'5.4%',  msv:5.4,  gdp:33815, co2:1048, range:435, chargeGrowth:'657×'},
+  {c:'Norway',        flag:'🇳🇴', r:'Europe',  rt:'eu',   ev:923061,   ch:35915,   sub:0,    ms:'—',     msv:65,   gdp:89090, co2:12, range:479, chargeGrowth:'479×'},
+  {c:'Sweden',        flag:'🇸🇪', r:'Europe',  rt:'eu',   ev:908473,   ch:45844,   sub:3792, ms:'—',     msv:55,   gdp:56080, co2:45, range:462, chargeGrowth:'611×'},
+  {c:'Italy',         flag:'🇮🇹', r:'Europe',  rt:'eu',   ev:856622,   ch:77783,   sub:3618, ms:'11.3%', msv:11.3, gdp:35550, co2:322, range:447, chargeGrowth:'1,037×'},
+  {c:'Netherlands',   flag:'🇳🇱', r:'Europe',  rt:'eu',   ev:820328,   ch:196516,  sub:2838, ms:'—',     msv:40,   gdp:56370, co2:154, range:460, chargeGrowth:'2,620×'},
+  {c:'Belgium',       flag:'🇧🇪', r:'Europe',  rt:'eu',   ev:618647,   ch:41981,   sub:2308, ms:'—',     msv:30,   gdp:47430, co2:109, range:443, chargeGrowth:'560×'},
+  {c:'Spain',         flag:'🇪🇸', r:'Europe',  rt:'eu',   ev:527789,   ch:50087,   sub:4392, ms:'—',     msv:18,   gdp:30100, co2:287, range:448, chargeGrowth:'668×'},
+  {c:'Australia',     flag:'🇦🇺', r:'Oceania', rt:'oc',   ev:507897,   ch:13357,   sub:565,  ms:'—',     msv:10,   gdp:62990, co2:432, range:479, chargeGrowth:'178×'},
+  {c:'India',         flag:'🇮🇳', r:'APAC',    rt:'apac', ev:470701,   ch:34475,   sub:1805, ms:'3.0%',  msv:3,    gdp:2380,  co2:2500, range:312, chargeGrowth:'460×'},
+  {c:'Thailand',      flag:'🇹🇭', r:'APAC',    rt:'apac', ev:361898,   ch:25686,   sub:1715, ms:'—',     msv:8,    gdp:7810,  co2:272, range:378, chargeGrowth:'342×'},
+  {c:'Switzerland',   flag:'🇨🇭', r:'Europe',  rt:'eu',   ev:358938,   ch:28251,   sub:0,    ms:'—',     msv:20,   gdp:92430, co2:40, range:471, chargeGrowth:'377×'},
+  {c:'Turkey',        flag:'🇹🇷', r:'Europe',  rt:'eu',   ev:324746,   ch:27835,   sub:1978, ms:'—',     msv:9,    gdp:10670, co2:438, range:422, chargeGrowth:'371×'},
+  {c:'Austria',       flag:'🇦🇹', r:'Europe',  rt:'eu',   ev:315708,   ch:28762,   sub:3495, ms:'—',     msv:22,   gdp:51400, co2:59, range:461, chargeGrowth:'383×'},
+  {c:'Portugal',      flag:'🇵🇹', r:'Europe',  rt:'eu',   ev:262024,   ch:17905,   sub:2448, ms:'—',     msv:12,   gdp:24500, co2:63, range:443, chargeGrowth:'239×'},
+  {c:'Brazil',        flag:'🇧🇷', r:'S.Am',    rt:'sa',   ev:254703,   ch:16549,   sub:0,    ms:'—',     msv:4,    gdp:8920,  co2:460, range:348, chargeGrowth:'221×'},
+  {c:'Poland',        flag:'🇵🇱', r:'Europe',  rt:'eu',   ev:184107,   ch:10596,   sub:3013, ms:'—',     msv:7,    gdp:18000, co2:329, range:431, chargeGrowth:'141×'},
+  {c:'Mexico',        flag:'🇲🇽', r:'N.Am',    rt:'na',   ev:132167,   ch:7945,    sub:0,    ms:'—',     msv:2,    gdp:10620, co2:465, range:341, chargeGrowth:'106×'},
+  {c:'Indonesia',     flag:'🇮🇩', r:'APAC',    rt:'apac', ev:103414,   ch:9977,    sub:843,  ms:'—',     msv:2,    gdp:4580,  co2:741, range:312, chargeGrowth:'133×'}
+];
+
+const regColors = { apac:'#22C55E', eu:'#4F6EF7', na:'#F97316', oc:'#A78BFA', sa:'#F59E0B' };
+const regLabels = { apac:'APAC', eu:'Europe', na:'N.America', oc:'Oceania', sa:'S.America' };
+
+// ===== YEAR DATA =====
+const YEAR_DATA = {
+  2010: { ev:20139,  ice:61252194, chargers:148,    growth:0,      range:120, topCountry:'Multiple early adopters', highlight:'The EV era begins. Nissan Leaf and Chevy Volt launch. Only 148 chargers exist globally.', badge:'🌱 EV Era Begins', color:'#9CA3AF' },
+  2011: { ev:68532,  ice:64160475, chargers:578,    growth:151.31, range:128, topCountry:'US & Japan', highlight:'Sales triple overnight — 151% jump. Early adopter surge. Tesla IPO galvanises investment in EVs worldwide.', badge:'🚀 First Surge', color:'#22C55E' },
+  2012: { ev:120099, ice:67311950, chargers:1017,   growth:66.81,  range:139, topCountry:'US & Japan', highlight:'First 6-figure year. Chargers break 1,000 globally. Tesla Model S launches and wins Motor Trend Car of the Year.', badge:'🔋 6-Figure Milestone', color:'#22C55E' },
+  2013: { ev:229508, ice:69833064, chargers:1475,   growth:94.75,  range:143, topCountry:'US, Japan, Norway', highlight:'China enters with its first major EV incentive programme. Norway leads Europe with aggressive subsidy policy.', badge:'🌏 China Enters', color:'#4F6EF7' },
+  2014: { ev:324688, ice:71809178, chargers:3842,   growth:80.19,  range:153, topCountry:'US, China, Norway', highlight:'Chargers jump 160% to 3,842. Tesla begins Gigafactory construction. BYD surpasses Nissan in cumulative EV sales.', badge:'⚡ Infra Acceleration', color:'#4F6EF7' },
+  2015: { ev:530272, ice:74737212, chargers:6032,   growth:58.53,  range:169, topCountry:'China, US, Norway', highlight:'China becomes the world\'s largest EV market for the first time. Paris Agreement signed — emission pressure mounts.', badge:'🇨🇳 China Takes #1', color:'#F97316' },
+  2016: { ev:741256, ice:77547040, chargers:10812,  growth:45.38,  range:188, topCountry:'China, US, Germany', highlight:'EV sales break 740K. Chargers exceed 10,000. Tesla Model 3 announced with 400K pre-orders in 48 hours.', badge:'📱 Model 3 Effect', color:'#F97316' },
+  2017: { ev:1343059,ice:79448444, chargers:15729,  growth:64.6,   range:217, topCountry:'China, US, Germany', highlight:'🏆 PEAK ICE YEAR — 79.4M petrol/diesel cars sold. EV sales break 1M for the first time. The crossover begins here.', badge:'⚠️ ICE Peak · EV 1M', color:'#EF4444' },
+  2018: { ev:1922263,ice:77137651, chargers:25437,  growth:45.34,  range:259, topCountry:'China, US, Norway', highlight:'ICE sales begin declining. Tesla Model 3 mass deliveries begin. China doubles its charging network in one year.', badge:'📉 ICE Starts Falling', color:'#EF4444' },
+  2019: { ev:2034750,ice:75272879, chargers:33655,  growth:51.12,  range:295, topCountry:'China, US, Germany', highlight:'Fast charger share reaches 14.6%. Average EV range breaks 295km — the \'range anxiety\' era effectively ends.', badge:'🔌 Range Anxiety Ends', color:'#8B5CF6' },
+  2020: { ev:2989469,ice:63806517, chargers:53150,  growth:75.49,  range:336, topCountry:'China, Germany, US', highlight:'COVID crashes ICE sales to 63.8M — lowest since 2010. EVs grow 75% despite the pandemic. Europe overtakes US.', badge:'🦠 COVID Catalyst', color:'#8B5CF6' },
+  2021: { ev:6503062,ice:63366355, chargers:69704,  growth:107.29, range:366, topCountry:'China, Germany, UK', highlight:'THE BREAKOUT YEAR. +107% growth. Post-COVID demand explodes. Government stimulus packages worldwide fuel EV buying.', badge:'💥 107% — Breakout', color:'#22C55E' },
+  2022: { ev:9933342,ice:59780188, chargers:105017, growth:84.87,  range:396, topCountry:'China, Germany, US', highlight:'EVs break 10M. USA passes Inflation Reduction Act ($7,490 subsidy). Chargers cross 100,000 globally.', badge:'💰 IRA Act · 10M EVs', color:'#22C55E' },
+  2023: { ev:13283873,ice:65212497,chargers:144995, growth:51.47,  range:423, topCountry:'China, Germany, US', highlight:'13.3M EVs sold. China dominates at 38% global share. Average range breaks 400km. EU firms 2035 ICE ban into law.', badge:'🇪🇺 2035 Ban Confirmed', color:'#4F6EF7' },
+  2024: { ev:16605356,ice:64234431,chargers:202439, growth:25.09,  range:449, topCountry:'China, US, Germany', highlight:'Chargers break 200,000. Growth slows to 25% — healthy S-curve maturation, not decline. Premium EVs go mainstream.', badge:'📊 S-Curve Maturity', color:'#4F6EF7' },
+  2025: { ev:19673169,ice:62181724,chargers:236994, growth:21.8,   range:471, topCountry:'China, US, Germany', highlight:'EV sales hit 19.7M — 24% of all new cars globally. Fast chargers 31% of network. ICE at lowest since 2010.', badge:'🏁 24% Market Share', color:'#22C55E' }
+};
+
+function handleSearch(val) {
+  const clear = document.getElementById('searchClear');
+  const dd = document.getElementById('searchDropdown');
+  clear.style.display = val ? 'block' : 'none';
+  if (!val.trim()) { dd.style.display = 'none'; return; }
+
+  const q = val.trim();
+  const qLow = q.toLowerCase();
+
+  // Check if it's a year
+  const yearNum = parseInt(q);
+  if (!isNaN(yearNum)) {
+    const validYears = Object.keys(YEAR_DATA).map(Number);
+    const matchYears = validYears.filter(y => String(y).includes(q));
+    if (matchYears.length > 0) {
+      let html = `<div style="padding:8px 16px 6px;font-size:10px;font-weight:700;letter-spacing:1.5px;color:#9CA3AF;text-transform:uppercase">Years Found</div>`;
+      html += matchYears.map(y => {
+        const yd = YEAR_DATA[y];
+        return `<div class="search-result-item" onclick="openYearSpotlight(${y})">
+          <span class="sri-flag" style="font-size:16px">📅</span>
+          <div>
+            <div class="sri-name">${y}</div>
+            <div class="sri-sub">${fmtM(yd.ev)} EV sales · ${yd.growth > 0 ? '▲'+yd.growth+'% growth' : 'Baseline year'}</div>
+          </div>
+          <span class="sri-badge" style="background:${yd.color}18;color:${yd.color}">${yd.badge.split(' ').slice(1).join(' ')}</span>
+        </div>`;
+      }).join('');
+      dd.innerHTML = html;
+      dd.style.display = 'block';
+      return;
+    } else if (yearNum < 2010 || yearNum > 2025) {
+      dd.innerHTML = `<div class="not-found-box">
+        <div style="font-size:24px;margin-bottom:6px">📅</div>
+        <div style="font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:#111827;margin-bottom:4px">${yearNum} not in dataset</div>
+        <div style="font-size:12px;color:#9CA3AF;margin-bottom:12px">We cover 2010–2025. Browse available years:</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">
+          ${[2010,2015,2017,2021,2022,2025].map(y=>`<span onclick="openYearSpotlight(${y})" style="cursor:pointer;background:#EEF1FF;color:#4F6EF7;border-radius:6px;padding:4px 10px;font-size:12px;font-weight:700">${y}</span>`).join('')}
+        </div>
+      </div>`;
+      dd.style.display = 'block';
+      return;
+    }
+  }
+
+  // Country search
+  const matches = SEARCH_COUNTRIES.filter(c => c.c.toLowerCase().includes(qLow));
+  const suggestions = matches.length === 0
+    ? SEARCH_COUNTRIES.filter(c => c.c.toLowerCase()[0] === qLow[0]).slice(0,4)
+    : matches.slice(0,6);
+
+  let html = '';
+  if (matches.length === 0) {
+    html += `<div class="not-found-box">
+      <div style="font-size:24px;margin-bottom:6px">🌐</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:#111827;margin-bottom:4px">"${val}" not in dataset</div>
+      <div style="font-size:12px;color:#9CA3AF;margin-bottom:12px">We track 25 countries. Did you mean one of these?</div>
+    </div>`;
+  } else {
+    html += `<div style="padding:8px 16px 6px;font-size:10px;font-weight:700;letter-spacing:1.5px;color:#9CA3AF;text-transform:uppercase">Countries Found</div>`;
+  }
+
+  html += suggestions.map(c => {
+    const color = regColors[c.rt] || '#9CA3AF';
+    const region = regLabels[c.rt] || c.r;
+    return `<div class="search-result-item" onclick="openSpotlight('${c.c}')">
+      <span class="sri-flag">${c.flag}</span>
+      <div>
+        <div class="sri-name">${c.c}</div>
+        <div class="sri-sub">${fmtM(c.ev)} EV sales · ${c.ms !== '—' ? c.ms + ' mkt share' : 'Emerging'}</div>
+      </div>
+      <span class="sri-badge" style="background:${color}18;color:${color}">${region}</span>
+    </div>`;
+  }).join('');
+
+  dd.innerHTML = html;
+  dd.style.display = 'block';
+}
+
+function submitSearch(val) {
+  const q = val.trim();
+  const yearNum = parseInt(q);
+  if (!isNaN(yearNum) && YEAR_DATA[yearNum]) { openYearSpotlight(yearNum); return; }
+  const match = SEARCH_COUNTRIES.find(c => c.c.toLowerCase() === q.toLowerCase());
+  if (match) openSpotlight(match.c);
+}
+
+function openYearSpotlight(year) {
+  document.getElementById('searchDropdown').style.display = 'none';
+  const d = YEAR_DATA[year];
+  if (!d) return;
+
+  const prevYear = YEAR_DATA[year - 1];
+  const nextYear = YEAR_DATA[year + 1];
+  const iceDelta = prevYear ? (((d.ice - prevYear.ice) / prevYear.ice) * 100).toFixed(1) : null;
+  const evShare = ((d.ev / (d.ev + d.ice)) * 100).toFixed(2);
+
+  // Timeline dot positions
+  const years = [2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+  const pos = ((years.indexOf(year)) / (years.length - 1) * 100).toFixed(1);
+
+  document.getElementById('spotlightInner').innerHTML = `
+    <!-- Year Header -->
+    <div style="background:linear-gradient(135deg,#14172B,#1a2035);padding:28px 32px 24px;border-radius:20px 20px 0 0;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-40px;right:-40px;width:200px;height:200px;background:radial-gradient(circle,${d.color}33,transparent 70%);pointer-events:none"></div>
+      <div onclick="closeSpotlight()" style="position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.6)" onmouseover="this.style.background='rgba(239,68,68,0.3)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.6)'">✕</div>
+
+      <div style="display:inline-block;background:${d.color}22;border:1px solid ${d.color}44;border-radius:7px;padding:4px 12px;font-size:11px;font-weight:700;color:${d.color};letter-spacing:2px;margin-bottom:10px">${d.badge}</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:44px;font-weight:900;color:#fff;line-height:1;margin-bottom:8px">${year}</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.65);line-height:1.7;max-width:520px">${d.highlight}</div>
+
+      <!-- 4 KPIs -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:20px">
+        <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.08)">
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:${d.color}">${fmtM(d.ev)}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px">EV SALES</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.08)">
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:#F97316">${fmtM(d.ice)}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px">ICE (PETROL/DIESEL)</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.08)">
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:#4F6EF7">${fmtM(d.chargers)}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px">CHARGING STATIONS</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.08)">
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:#A78BFA">${d.range} km</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px">AVG EV RANGE</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:24px 32px;display:flex;flex-direction:column;gap:16px">
+
+      <!-- Timeline position -->
+      <div style="background:#F9FAFB;border:1px solid #F3F4F6;border-radius:12px;padding:16px 20px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#9CA3AF;text-transform:uppercase;margin-bottom:12px">Position on the EV Adoption Timeline · 2010–2025</div>
+        <div style="position:relative;height:6px;background:#E5E7EB;border-radius:3px;margin-bottom:8px">
+          <div style="position:absolute;left:0;top:0;height:100%;width:${pos}%;background:linear-gradient(90deg,#4F6EF7,${d.color});border-radius:3px"></div>
+          <div style="position:absolute;top:-5px;left:calc(${pos}% - 8px);width:16px;height:16px;border-radius:50%;background:${d.color};border:3px solid #fff;box-shadow:0 0 8px ${d.color}88"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:#9CA3AF">
+          <span>2010 · 20K EVs</span>
+          <span style="color:${d.color};font-weight:700">${year}</span>
+          <span>2025 · 19.7M EVs</span>
+        </div>
+      </div>
+
+      <!-- EV vs ICE comparison -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:16px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#16A34A;text-transform:uppercase;margin-bottom:8px">⚡ EV Market in ${year}</div>
+          <div style="font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;color:#15803D;margin-bottom:4px">${fmtM(d.ev)}</div>
+          <div style="font-size:12px;color:#6B7280;margin-bottom:8px">${evShare}% of all car sales</div>
+          ${d.growth > 0 ? `<div style="background:#DCFCE7;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;color:#16A34A;display:inline-block">▲ ${d.growth}% vs prior year</div>` : '<div style="background:#F3F4F6;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;color:#9CA3AF;display:inline-block">Baseline year</div>'}
+        </div>
+        <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:12px;padding:16px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#C2410C;text-transform:uppercase;margin-bottom:8px">🚗 ICE (Petrol/Diesel) in ${year}</div>
+          <div style="font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;color:#C2410C;margin-bottom:4px">${fmtM(d.ice)}</div>
+          <div style="font-size:12px;color:#6B7280;margin-bottom:8px">${(100 - parseFloat(evShare)).toFixed(2)}% of all car sales</div>
+          ${iceDelta !== null ? `<div style="background:${parseFloat(iceDelta)>0?'#FEE2E2':'#DCFCE7'};border-radius:6px;padding:5px 10px;font-size:11px;font-weight:700;color:${parseFloat(iceDelta)>0?'#DC2626':'#16A34A'};display:inline-block">${parseFloat(iceDelta)>0?'▲':'▼'} ${Math.abs(iceDelta)}% vs ${year-1}</div>` : ''}
+        </div>
+      </div>
+
+      <!-- What happened that year -->
+      <div style="background:linear-gradient(135deg,${d.color}10,${d.color}05);border:1px solid ${d.color}22;border-radius:12px;padding:16px 20px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:${d.color};text-transform:uppercase;margin-bottom:8px">📍 What Defined ${year}</div>
+        <div style="font-size:13px;color:#374151;line-height:1.7">${d.highlight}</div>
+        <div style="margin-top:10px;font-size:12px;color:#9CA3AF">🏆 Top Markets: <strong style="color:#111827">${d.topCountry}</strong></div>
+      </div>
+
+      <!-- Before / After -->
+      ${prevYear || nextYear ? `
+      <div style="display:grid;grid-template-columns:${prevYear?'1fr':''}${prevYear&&nextYear?' ':''}${nextYear?'1fr':''};gap:12px">
+        ${prevYear ? `<div onclick="openYearSpotlight(${year-1})" style="cursor:pointer;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:14px;text-align:center;transition:all 0.2s" onmouseover="this.style.background='#EEF1FF';this.style.borderColor='#4F6EF7'" onmouseout="this.style.background='#F9FAFB';this.style.borderColor='#E5E7EB'">
+          <div style="font-size:10px;color:#9CA3AF;margin-bottom:4px">← Previous Year</div>
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:#4F6EF7">${year-1}</div>
+          <div style="font-size:11px;color:#6B7280;margin-top:2px">${fmtM(prevYear.ev)} EVs sold</div>
+        </div>` : ''}
+        ${nextYear ? `<div onclick="openYearSpotlight(${year+1})" style="cursor:pointer;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:12px;padding:14px;text-align:center;transition:all 0.2s" onmouseover="this.style.background='#EEF1FF';this.style.borderColor='#4F6EF7'" onmouseout="this.style.background='#F9FAFB';this.style.borderColor='#E5E7EB'">
+          <div style="font-size:10px;color:#9CA3AF;margin-bottom:4px">Next Year →</div>
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:#4F6EF7">${year+1}</div>
+          <div style="font-size:11px;color:#6B7280;margin-top:2px">${fmtM(nextYear.ev)} EVs sold</div>
+        </div>` : ''}
+      </div>` : ''}
+
+    </div>
+  `;
+
+  const modal = document.getElementById('spotlightModal');
+  const backdrop = document.getElementById('spotlightBackdrop');
+  modal.style.display = 'block';
+  backdrop.style.display = 'block';
+  modal.style.animation = 'modalIn 0.3s cubic-bezier(0.34,1.2,0.64,1) both';
+  modal.scrollTop = 0;
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').style.display = 'none';
+  document.getElementById('searchDropdown').style.display = 'none';
+}
+
+function openSpotlight(countryName) {
+  document.getElementById('searchDropdown').style.display = 'none';
+  const d = SEARCH_COUNTRIES.find(c => c.c === countryName);
+  if (!d) return;
+
+  const color = regColors[d.rt] || '#9CA3AF';
+  const region = regLabels[d.rt] || d.r;
+
+  // Fun fact per country
+  const facts = {
+    'China': 'China built more EV charging stations in 2024 alone than the entire global network in 2020.',
+    'United States': 'The US Inflation Reduction Act ($7,490/vehicle) is the single largest EV subsidy programme in history.',
+    'Germany': 'Germany\'s 29.8% EV market share in 2025 is the highest of any major EU economy.',
+    'United Kingdom': 'The UK banned new petrol car sales from 2030 — one of the earliest ICE deadlines globally.',
+    'France': 'France\'s \'bonus écologique\' (€5,000+) has been running since 2008 — the longest-running EV subsidy in Europe.',
+    'Norway': 'Norway has ZERO government EV subsidy yet leads Europe in market share — achieved through high ICE taxes instead.',
+    'South Korea': 'South Korea has 249K charging stations — more than France and Germany combined — for just 1.1M EVs sold.',
+    'Japan': 'Japan invented the CHAdeMO fast-charging standard, yet trails China and Europe in overall EV adoption.',
+    'Brazil': 'Brazil sold 254K EVs with absolutely zero government subsidy — pure consumer-driven demand.',
+    'Australia': 'Australia\'s EV sales jumped from 6,773 in 2020 to 153,139 in 2025 — a 22× surge in 5 years.',
+    'India': 'India\'s FAME-II scheme targets 2-wheelers and buses first — a unique bottom-up EV strategy.',
+    'Netherlands': 'The Netherlands has the highest charging station density in Europe relative to land area.',
+  };
+  const fact = facts[d.c] || `${d.c} has sold ${fmtM(d.ev)} EVs since 2010 and has ${fmtM(d.ch)} charging stations as of 2025.`;
+
+  const rankInGlobal = SEARCH_COUNTRIES.sort((a,b)=>b.ev-a.ev).findIndex(c=>c.c===d.c)+1;
+  SEARCH_COUNTRIES.sort((a,b)=>b.ev-a.ev); // re-sort to keep consistent
+
+  document.getElementById('spotlightInner').innerHTML = `
+    <!-- Header -->
+    <div style="background:linear-gradient(135deg,#14172B,#1a2035);padding:28px 32px 24px;border-radius:20px 20px 0 0;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,${color}33,transparent 70%);pointer-events:none"></div>
+      <div onclick="closeSpotlight()" style="position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.6)" onmouseover="this.style.background='rgba(239,68,68,0.3)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.6)'">✕</div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+        <span style="font-size:52px;line-height:1">${d.flag}</span>
+        <div>
+          <div style="display:inline-block;background:${color}22;border:1px solid ${color}44;border-radius:7px;padding:3px 10px;font-size:10px;font-weight:700;color:${color};letter-spacing:2px;margin-bottom:6px">${region} · RANK #${rankInGlobal} GLOBALLY</div>
+          <div style="font-family:'Outfit',sans-serif;font-size:28px;font-weight:900;color:#fff">${d.c}</div>
+        </div>
+      </div>
+      <!-- Quick stats -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.08)">
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:${color}">${fmtM(d.ev)}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px">TOTAL EV SALES</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.08)">
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:#4F6EF7">${fmtM(d.ch)}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px">CHARGERS</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.08)">
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:#F59E0B">${d.sub > 0 ? '$'+d.sub.toLocaleString() : '$0'}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px">AVG SUBSIDY</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.08)">
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:#A78BFA">${d.ms}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px">MARKET SHARE '25</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:24px 32px;display:flex;flex-direction:column;gap:16px">
+
+      <!-- Fun Fact -->
+      <div style="background:linear-gradient(135deg,${color}10,${color}05);border:1px solid ${color}22;border-radius:12px;padding:16px 20px;display:flex;gap:14px;align-items:flex-start">
+        <span style="font-size:26px;flex-shrink:0">💡</span>
+        <div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:${color};text-transform:uppercase;margin-bottom:6px">Did You Know?</div>
+          <div style="font-size:13px;color:#374151;line-height:1.7">${fact}</div>
+        </div>
+      </div>
+
+      <!-- Metrics grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="background:#F9FAFB;border:1px solid #F3F4F6;border-radius:12px;padding:16px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#9CA3AF;text-transform:uppercase;margin-bottom:10px">Economic Profile</div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F3F4F6;font-size:12px"><span style="color:#6B7280">GDP per Capita</span><span style="font-weight:700;color:#111827;font-family:'DM Mono',monospace">$${d.gdp.toLocaleString()}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F3F4F6;font-size:12px"><span style="color:#6B7280">Avg EV Range</span><span style="font-weight:700;color:#4F6EF7;font-family:'DM Mono',monospace">${d.range} km</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;font-size:12px"><span style="color:#6B7280">CO₂ Transport (MT)</span><span style="font-weight:700;color:#EF4444;font-family:'DM Mono',monospace">${d.co2.toLocaleString()}</span></div>
+        </div>
+        <div style="background:#F9FAFB;border:1px solid #F3F4F6;border-radius:12px;padding:16px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#9CA3AF;text-transform:uppercase;margin-bottom:10px">Infrastructure & Policy</div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F3F4F6;font-size:12px"><span style="color:#6B7280">Charger Growth</span><span style="font-weight:700;color:#22C55E;font-family:'DM Mono',monospace">${d.chargeGrowth}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid #F3F4F6;font-size:12px"><span style="color:#6B7280">Subsidy Status</span><span style="font-weight:700;font-family:'DM Mono',monospace;color:${d.sub>0?'#F59E0B':'#EF4444'}">${d.sub>0?'Active ($'+d.sub.toLocaleString()+')':'None ($0)'}</span></div>
+          <div style="display:flex;justify-content:space-between;padding:7px 0;font-size:12px"><span style="color:#6B7280">Global Rank</span><span style="font-weight:700;color:#8B5CF6;font-family:'DM Mono',monospace">#${rankInGlobal} of 25</span></div>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div style="background:#F9FAFB;border:1px solid #F3F4F6;border-radius:12px;padding:16px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;color:#9CA3AF;text-transform:uppercase;margin-bottom:10px">Share of Global EV Sales</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="flex:1;height:10px;background:#E5E7EB;border-radius:5px;overflow:hidden">
+            <div style="height:100%;width:${Math.min((d.ev/76300000)*100,100).toFixed(1)}%;background:linear-gradient(90deg,${color},${color}99);border-radius:5px;transition:width 1s ease"></div>
+          </div>
+          <span style="font-family:'Outfit',sans-serif;font-size:16px;font-weight:800;color:${color};min-width:50px;text-align:right">${((d.ev/76300000)*100).toFixed(1)}%</span>
+        </div>
+        <div style="font-size:11px;color:#9CA3AF;margin-top:6px">${fmtM(d.ev)} of 76.3M global EV sales</div>
+      </div>
+
+    </div>
+  `;
+
+  const modal = document.getElementById('spotlightModal');
+  const backdrop = document.getElementById('spotlightBackdrop');
+  modal.style.display = 'block';
+  backdrop.style.display = 'block';
+  modal.style.animation = 'modalIn 0.3s cubic-bezier(0.34,1.2,0.64,1) both';
+  modal.scrollTop = 0;
+}
+
+function closeSpotlight() {
+  const modal = document.getElementById('spotlightModal');
+  const backdrop = document.getElementById('spotlightBackdrop');
+  modal.style.animation = 'modalOut 0.2s ease forwards';
+  setTimeout(() => {
+    modal.style.display = 'none';
+    backdrop.style.display = 'none';
   }, 200);
 }
 </script>
