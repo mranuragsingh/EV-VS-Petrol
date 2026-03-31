@@ -43,6 +43,8 @@ body {
   color: var(--text);
   display: flex;
   height: 100vh;
+  isolation: auto;
+  transform: none !important;
 }
 
 /* ── SIDEBAR ── */
@@ -652,9 +654,16 @@ body {
 .change-down { color: var(--red); font-size: 11px; font-weight: 700; }
 
 /* SCROLLABLE table area */
-.table-scroll { overflow-y: auto; max-height: 220px; }
+.table-scroll { overflow-y: auto; max-height: 320px; }
 .table-scroll::-webkit-scrollbar { width: 3px; }
 .table-scroll::-webkit-scrollbar-thumb { background: var(--border); }
+.table-scroll table thead tr th {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: #fff;
+  box-shadow: 0 1px 0 #E5E7EB;
+}
 
 /* Radar label */
 .radar-labels {
@@ -682,10 +691,10 @@ body {
 <!-- SIDEBAR -->
 <nav class="sidebar">
   <div class="sidebar-logo">EV</div>
-  <div class="sidebar-icon active" title="Dashboard">⊞</div>
-  <div class="sidebar-icon" title="Analytics">📈</div>
-  <div class="sidebar-icon" title="Markets">🌏</div>
-  <div class="sidebar-icon" title="Reports">📋</div>
+  <div class="sidebar-icon active" onclick="switchAudience('general', this)" title="General Public · The EV Shift" id="sicon-general">🌍</div>
+  <div class="sidebar-icon" onclick="switchAudience('manufacturer', this)" title="Manufacturers · Petrol to EV" id="sicon-manufacturer">🏭</div>
+  <div class="sidebar-icon" onclick="switchAudience('investor', this)" title="Investors · Opportunity" id="sicon-investor">💰</div>
+  <div class="sidebar-icon" onclick="switchAudience('finance', this)" title="Finance & Accounting" id="sicon-finance">📊</div>
   <div class="sidebar-bottom">
     <div class="avatar" onclick="toggleProfile(event)" id="avatarBtn" title="View Profile">PB</div>
   </div>
@@ -829,11 +838,11 @@ body {
             <div style="padding:20px 22px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #F3F4F6;background:#fff;border-radius:14px 14px 0 0">
               <div>
                 <span style="font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:#111827">Country Performance Matrix</span>
-                <span style="font-size:11px;font-weight:400;color:#9CA3AF;margin-left:6px;font-family:'Figtree',sans-serif">Top 7 markets · All-time</span>
+                <span style="font-size:11px;font-weight:400;color:#9CA3AF;margin-left:6px;font-family:'Figtree',sans-serif">All 25 markets · All-time</span>
               </div>
-              <button onclick="openCountryModal()" style="font-size:12px;color:#4F6EF7;font-weight:700;cursor:pointer;border:1px solid #EEF1FF;background:#EEF1FF;border-radius:7px;padding:5px 12px;font-family:'Figtree',sans-serif;transition:all 0.2s" onmouseover="this.style.background='#4F6EF7';this.style.color='#fff'" onmouseout="this.style.background='#EEF1FF';this.style.color='#4F6EF7'">View All 25 ↗</button>
+              <div style="background:#EEF1FF;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:700;color:#4F6EF7;font-family:'Figtree',sans-serif">25 Countries ↓ Scroll</div>
             </div>
-            <div style="overflow-y:auto;max-height:320px;overflow-x:auto">
+            <div style="overflow-y:auto;max-height:520px;overflow-x:auto">
               <table class="data-table country-main-table" style="width:100%">
                 <thead class="sticky-thead">
                   <tr>
@@ -1290,6 +1299,82 @@ body {
               <div class="is-text"><strong>Emerging Markets Story:</strong> Brazil's 254K EVs sold with <strong>zero government subsidy</strong> proves consumer demand exists without policy support. Australia is accelerating — 153K EVs sold in 2025 alone. These markets are <strong>5–8 years behind the adoption curve</strong> — but the curve is steepening.</div>
               <div style="text-align:right"><div class="is-val" style="color:#F59E0B">↑</div><div class="is-val-sub">ACCELERATING</div></div>
             </div>
+
+            <!-- WHERE COULD THEY BE? -->
+            <div class="chart-card" style="padding:0;overflow:hidden">
+              <div style="padding:18px 20px 14px;border-bottom:1px solid #F3F4F6">
+                <div style="font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:#111827">📡 Where Could They Be? <span style="font-size:11px;font-weight:400;color:#9CA3AF;margin-left:6px;font-family:'Figtree',sans-serif">Projection if subsidies were introduced</span></div>
+              </div>
+              <div style="padding:18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+
+                <!-- Australia card -->
+                <div style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border-radius:12px;padding:16px;border:1px solid rgba(34,197,94,0.2)">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                    <span style="font-size:20px">🇦🇺</span>
+                    <div>
+                      <div style="font-family:'Outfit',sans-serif;font-size:13px;font-weight:800;color:#111827">Australia</div>
+                      <div style="font-size:10px;color:#6B7280">If $3,000 subsidy introduced</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                      <span style="font-size:11px;color:#6B7280">Current (2025)</span>
+                      <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:#374151">153K/yr</span>
+                    </div>
+                    <div style="height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden">
+                      <div style="width:18%;height:100%;background:#22C55E;border-radius:3px"></div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                      <span style="font-size:11px;color:#6B7280">Projected 2030</span>
+                      <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:#22C55E">~620K/yr</span>
+                    </div>
+                    <div style="height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden">
+                      <div style="width:72%;height:100%;background:linear-gradient(90deg,#22C55E,#4ADE80);border-radius:3px"></div>
+                    </div>
+                    <div style="margin-top:4px;background:rgba(34,197,94,0.1);border-radius:8px;padding:8px 10px;font-size:11px;color:#16A34A;font-weight:600">
+                      ▲ 4× uplift — modelled on Norway's subsidy curve
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Brazil card -->
+                <div style="background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border-radius:12px;padding:16px;border:1px solid rgba(245,158,11,0.2)">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                    <span style="font-size:20px">🇧🇷</span>
+                    <div>
+                      <div style="font-family:'Outfit',sans-serif;font-size:13px;font-weight:800;color:#111827">Brazil</div>
+                      <div style="font-size:10px;color:#6B7280">If $2,000 subsidy introduced</div>
+                    </div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:8px">
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                      <span style="font-size:11px;color:#6B7280">Current (all-time)</span>
+                      <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:#374151">254K total</span>
+                    </div>
+                    <div style="height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden">
+                      <div style="width:12%;height:100%;background:#F59E0B;border-radius:3px"></div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center">
+                      <span style="font-size:11px;color:#6B7280">Projected 2030</span>
+                      <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:#F59E0B">~980K/yr</span>
+                    </div>
+                    <div style="height:6px;background:#E5E7EB;border-radius:3px;overflow:hidden">
+                      <div style="width:88%;height:100%;background:linear-gradient(90deg,#F59E0B,#FBBF24);border-radius:3px"></div>
+                    </div>
+                    <div style="margin-top:4px;background:rgba(245,158,11,0.1);border-radius:8px;padding:8px 10px;font-size:11px;color:#D97706;font-weight:600">
+                      ▲ World's 3rd largest EV market potential
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Comparison timeline -->
+              <div style="padding:0 20px 18px">
+                <div style="font-size:11px;font-weight:700;color:#6B7280;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px">Adoption Curve vs Established Markets</div>
+                <canvas id="emCompareChart" height="90"></canvas>
+                <div style="font-size:10px;color:#9CA3AF;margin-top:8px;text-align:center">Dashed lines show where AU & BR could be with policy support — modelled on India's FAME-II curve</div>
+              </div>
+            </div>
           </div>
           <!-- Emerging Side Widgets -->
           <div style="display:flex;flex-direction:column;gap:14px">
@@ -1642,7 +1727,7 @@ function makeCountryRow(d, i, isModal=false) {
 
 function buildCountryTable() {
   const tbody = document.getElementById('countryTbody');
-  tbody.innerHTML = ALL_COUNTRIES.slice(0,7).map((d,i) => makeCountryRow(d,i,false)).join('');
+  tbody.innerHTML = ALL_COUNTRIES.slice(0,25).map((d,i) => makeCountryRow(d,i,false)).join('');
 }
 
 // ===== VIEW ALL MODAL =====
@@ -1652,7 +1737,19 @@ function openCountryModal() {
 
   const modal = document.createElement('div');
   modal.id = 'countryModal';
-  modal.style.cssText = `display:flex;position:fixed;inset:0;z-index:9000;align-items:center;justify-content:center;background:rgba(17,24,39,0.5);backdrop-filter:blur(4px)`;
+  modal.style.cssText = `
+    display:flex;
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+    width:100%;
+    height:100%;
+    z-index:99999;
+    align-items:center;
+    justify-content:center;
+    background:rgba(17,24,39,0.55);
+    backdrop-filter:blur(4px);
+    margin:0; padding:0;
+  `;
   modal.onclick = e => { if(e.target===modal) closeCountryModal(); };
 
   modal.innerHTML = `
@@ -1712,7 +1809,7 @@ function openCountryModal() {
       </div>
     </div>
   `;
-  document.body.appendChild(modal);
+  document.body.insertBefore(modal, document.body.firstChild);
 }
 
 function closeCountryModal() {
@@ -1892,6 +1989,28 @@ function buildEmergingCharts() {
     type:'line',
     data:{labels:['2010','2013','2015','2017','2019','2021','2022','2023','2024','2025'],datasets:[{label:'🇧🇷 Brazil (No Subsidy)',data:[150,600,800,2100,6200,18000,42000,65000,88000,111000],borderColor:'#F59E0B',backgroundColor:'rgba(245,158,11,0.07)',fill:true,tension:0.45,borderWidth:2.5,pointRadius:3,pointBackgroundColor:'#F59E0B'},{label:'🇦🇺 Australia',data:[99,678,1513,3755,8875,20820,87304,97938,118390,153139],borderColor:'#A78BFA',backgroundColor:'rgba(167,139,250,0.07)',fill:true,tension:0.45,borderWidth:2,pointRadius:3,pointBackgroundColor:'#A78BFA'}]},
     options:{responsive:true,plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},padding:8}},tooltip:{callbacks:{label:c=>` ${fmtM(c.raw)} units`}}},scales:{x:{grid:{display:false},border:{display:false},ticks:{font:{size:10}}},y:{grid:{color:'#F3F4F6'},border:{display:false},ticks:{callback:v=>fmtM(v),font:{size:10}}}}}
+  });
+
+  // Adoption Curve Comparison
+  new Chart(document.getElementById('emCompareChart'), {
+    type:'line',
+    data:{
+      labels:['2015','2017','2019','2021','2022','2023','2024','2025','2027*','2030*'],
+      datasets:[
+        {label:'🇩🇪 Germany (Est.)',data:[27316,70159,104846,337010,516446,672742,848874,934232,null,null],borderColor:'#4F6EF7',borderWidth:2,tension:0.4,pointRadius:2,fill:false,borderDash:[]},
+        {label:'🇮🇳 India (Policy Model)',data:[2000,5000,15000,45000,120000,220000,350000,470000,null,null],borderColor:'#22C55E',borderWidth:2,tension:0.4,pointRadius:2,fill:false},
+        {label:'🇦🇺 Australia (actual→proj)',data:[1513,3755,8875,20820,87304,97938,118390,153139,280000,620000],borderColor:'#A78BFA',borderWidth:2,tension:0.4,pointRadius:2,fill:false,borderDash:[6,3]},
+        {label:'🇧🇷 Brazil (actual→proj)',data:[800,2100,6200,18000,42000,65000,88000,111000,350000,980000],borderColor:'#F59E0B',borderWidth:2,tension:0.4,pointRadius:2,fill:false,borderDash:[6,3]}
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,font:{size:10},padding:6,color:'#6B7280'}},tooltip:{callbacks:{label:c=>` ${c.dataset.label}: ${fmtM(c.raw)}`}}},
+      scales:{
+        x:{grid:{display:false},border:{display:false},ticks:{font:{size:9}}},
+        y:{grid:{color:'#F3F4F6'},border:{display:false},ticks:{callback:v=>fmtM(v),font:{size:9}}}
+      }
+    }
   });
 }
 function setView(v, btn) {
@@ -2719,6 +2838,241 @@ function closeProfileCard() {
     card.style.display = 'none';
     overlay.style.display = 'none';
   }, 180);
+}
+</script>
+<!-- AUDIENCE MODAL BACKDROP -->
+<div id="audienceBackdrop" onclick="closeAudience()" style="display:none;position:fixed;inset:0;background:rgba(17,24,39,0.5);backdrop-filter:blur(4px);z-index:8500"></div>
+
+<!-- AUDIENCE MODAL -->
+<div id="audienceModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:8600;width:min(720px,95vw);max-height:88vh;overflow-y:auto;border-radius:20px;background:#fff;box-shadow:0 32px 80px rgba(0,0,0,0.18);font-family:'Figtree',sans-serif">
+  <div id="audienceInner"></div>
+</div>
+
+<style>
+/* Sidebar tooltip */
+.sidebar-icon { position: relative; }
+.sidebar-icon::after {
+  content: attr(title);
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #14172B;
+  color: rgba(255,255,255,0.9);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 7px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  font-family: 'Figtree', sans-serif;
+  border: 1px solid rgba(255,255,255,0.1);
+  z-index: 999;
+}
+.sidebar-icon:hover::after { opacity: 1; }
+
+/* Audience card grid */
+.aud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.aud-stat {
+  background: #F9FAFB;
+  border: 1px solid #F3F4F6;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.aud-stat-icon { font-size: 22px; flex-shrink: 0; }
+.aud-stat-val { font-family: 'Outfit', sans-serif; font-size: 19px; font-weight: 800; color: #111827; margin-bottom: 2px; }
+.aud-stat-lbl { font-size: 11px; color: #6B7280; }
+
+.aud-takeaway {
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(255,255,255,0.85);
+}
+.aud-takeaway strong { color: #fff; }
+
+.aud-insight-row {
+  display: flex;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px dashed #F3F4F6;
+  align-items: flex-start;
+}
+.aud-insight-row:last-child { border-bottom: none; }
+.aud-insight-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.aud-insight-text { font-size: 13px; color: #374151; line-height: 1.6; }
+.aud-insight-text strong { color: #111827; font-weight: 700; }
+</style>
+
+<script>
+const AUDIENCE_DATA = {
+  general: {
+    color: '#22C55E',
+    bg: 'linear-gradient(135deg,#14172B,#0f2a1a)',
+    icon: '🌍',
+    label: 'GENERAL PUBLIC',
+    title: 'The World is Switching to Electric',
+    subtitle: 'You don\'t need to be a data expert to understand this. In 15 years, EVs went from a curiosity to nearly 1 in 4 cars sold globally. Here\'s what that actually means.',
+    stats: [
+      {icon:'⚡',val:'983×',lbl:'EV growth in 15 years',color:'#22C55E'},
+      {icon:'🚗',val:'19.7M',lbl:'EVs sold in 2025 alone',color:'#4F6EF7'},
+      {icon:'🔋',val:'237K',lbl:'Charging stations globally',color:'#F59E0B'},
+      {icon:'🌱',val:'471km',lbl:'Average EV range in 2025',color:'#A78BFA'}
+    ],
+    insights: [
+      {icon:'📈',text:'<strong>In 2010, only 20,000 EVs were sold</strong> globally — that\'s less than a small town. By 2025, 19.7 million EVs were sold in a single year.'},
+      {icon:'🌏',text:'<strong>China is leading the shift</strong> — accounting for 65% of all EV sales. Every 2 out of 3 EVs sold in the world is in Asia Pacific.'},
+      {icon:'🔌',text:'<strong>Charging is no longer the problem</strong> — from 148 stations in 2010 to 237,000 in 2025. Fast chargers now make up 31% of the network.'},
+      {icon:'💰',text:'<strong>Governments are paying people to switch</strong> — the US offers $7,490 per vehicle, France $5,775. These subsidies are working.'},
+      {icon:'🌍',text:'<strong>This isn\'t a trend — it\'s structural.</strong> Petrol car sales peaked in 2017 and have fallen 21% since. The shift has already happened.'}
+    ],
+    takeaway: 'linear-gradient(135deg,#14532d,#166534)',
+    takeawayText: '💡 <strong>What this means for you:</strong> The next car you buy will likely be electric. Charging is becoming as easy as plugging in your phone. The cost to run an EV is already 2–4× cheaper per km than petrol in most markets.'
+  },
+  manufacturer: {
+    color: '#F97316',
+    bg: 'linear-gradient(135deg,#1a0f0f,#2a1500)',
+    icon: '🏭',
+    label: 'CAR MANUFACTURERS',
+    title: 'Petrol Peaked in 2017. The Window is Now.',
+    subtitle: 'For any company still manufacturing ICE vehicles, this data is unambiguous. The market is moving — and the companies that pivot now will capture subsidies, infrastructure lock-in, and consumer loyalty.',
+    stats: [
+      {icon:'📉',val:'−21%',lbl:'ICE sales decline since 2017 peak',color:'#EF4444'},
+      {icon:'🏆',val:'$5,818',lbl:'China avg subsidy — biggest market',color:'#F97316'},
+      {icon:'🔋',val:'65%',lbl:'Global EV share from APAC',color:'#22C55E'},
+      {icon:'🏭',val:'2035',lbl:'EU ICE ban deadline',color:'#A78BFA'}
+    ],
+    insights: [
+      {icon:'📉',text:'<strong>ICE vehicle sales peaked at 79.4M in 2017</strong> and have fallen to 62.2M in 2025. This is structural contraction — not a cyclical dip.'},
+      {icon:'🏭',text:'<strong>Mass Market is the battleground now.</strong> Premium EVs launched first, but 11.4M mass-market EVs were sold in 2025. That\'s where volume is.'},
+      {icon:'🌏',text:'<strong>APAC is the entry point.</strong> China alone has 4.3M charging stations and $5,818 in per-vehicle subsidies. Manufacturing locally = massive advantage.'},
+      {icon:'📏',text:'<strong>Range anxiety is solved.</strong> Average EV range hit 471km in 2025, up from 120km in 2010. Battery technology is no longer a barrier.'},
+      {icon:'🇪🇺',text:'<strong>Europe\'s 2035 ICE ban is law.</strong> Manufacturers have 10 years to completely retool production lines. Every quarter of delay narrows the runway.'}
+    ],
+    takeaway: 'linear-gradient(135deg,#7c2d12,#9a3412)',
+    takeawayText: '💡 <strong>Strategic imperative:</strong> The companies that transition now capture government subsidies (worth billions in aggregate), build dealership & service infrastructure, and lock in first-mover brand loyalty in the fastest-growing auto segment in history.'
+  },
+  investor: {
+    color: '#4F6EF7',
+    bg: 'linear-gradient(135deg,#0f1a3a,#1a1a40)',
+    icon: '💰',
+    label: 'INVESTORS',
+    title: '983× Growth. Infrastructure Gap. Smart Money Signals.',
+    subtitle: 'The EV market has delivered one of the fastest product category expansions in automotive history. Here\'s where the next wave of opportunity sits — infrastructure, emerging markets, and subsidy-driven adoption curves.',
+    stats: [
+      {icon:'📈',val:'983×',lbl:'EV sales growth 2010→2025',color:'#4F6EF7'},
+      {icon:'⚡',val:'$3.5T',lbl:'Est. total addressable market 2030',color:'#22C55E'},
+      {icon:'🏗️',val:'1,601×',lbl:'Charging infrastructure growth',color:'#F59E0B'},
+      {icon:'🌱',val:'2.3×',lbl:'Higher adoption in high-subsidy markets',color:'#A78BFA'}
+    ],
+    insights: [
+      {icon:'📈',text:'<strong>Growth is maturing, not declining.</strong> YoY growth slowed from 107% (2021) to 22% (2025) — but absolute volume hit 19.7M units. The S-curve is in the exponential phase.'},
+      {icon:'🏗️',text:'<strong>Infrastructure is the next compounding moat.</strong> Charging stations grew 1,601× in 15 years. The USA has a critical gap — 8.7M EVs but only 131K chargers. That gap = investment opportunity.'},
+      {icon:'🌱',text:'<strong>Emerging markets are 5–8 years behind the curve.</strong> Brazil (254K EVs, zero subsidy) and India (470K, $1,805 subsidy) are early-stage. First-movers in these markets will benefit disproportionately.'},
+      {icon:'💰',text:'<strong>Subsidy correlation is strong.</strong> Countries with $4,500+ subsidies show 2.3× higher adoption rates. Track policy pipelines — subsidy announcements are leading indicators of sales growth.'},
+      {icon:'🇰🇷',text:'<strong>South Korea is the hidden gem.</strong> 249K charging stations — more than France and Germany combined — with only 1.1M EV sales. Infrastructure is ready for exponential demand.'}
+    ],
+    takeaway: 'linear-gradient(135deg,#1e1b4b,#312e81)',
+    takeawayText: '💡 <strong>Where to look:</strong> Infrastructure plays (charging networks), emerging market entry (India, Brazil, Indonesia), and battery supply chain companies in South Korea & China are where structural growth signals are strongest over the next decade.'
+  },
+  finance: {
+    color: '#8B5CF6',
+    bg: 'linear-gradient(135deg,#1a0a2e,#2d1b69)',
+    icon: '📊',
+    label: 'FINANCE & ACCOUNTING',
+    title: 'The Numbers Behind the Revolution — A Full Ledger View',
+    subtitle: 'For finance professionals: complete data coverage across 25 countries, 5 regions, 16 years, and 3 vehicle segments. Every KPI is sourced from the raw dataset with year-by-year auditability.',
+    stats: [
+      {icon:'📋',val:'25',lbl:'Countries in the dataset',color:'#8B5CF6'},
+      {icon:'📅',val:'16 yrs',lbl:'Annual data coverage 2010–2025',color:'#4F6EF7'},
+      {icon:'💵',val:'$76.3B+',lbl:'Est. cumulative EV revenue (units × ASP)',color:'#22C55E'},
+      {icon:'🏷️',val:'$938K',lbl:'Total APAC subsidies in dataset (USD)',color:'#F59E0B'}
+    ],
+    insights: [
+      {icon:'📊',text:'<strong>Regional pivot:</strong> APAC = 49.7M units (65.1%) · Europe = 15.8M (20.8%) · N. America = 10.0M (13.1%) · Oceania = 508K · S. America = 255K'},
+      {icon:'💰',text:'<strong>Subsidy ledger:</strong> Europe total $1.95M avg · APAC $938K · N. America $581K · Brazil & Norway = $0 subsidy. High subsidy markets consistently outperform.'},
+      {icon:'📉',text:'<strong>ICE financial exposure:</strong> Any company with >50% revenue from ICE vehicles faces structural headwinds. Peak ICE was 2017 at 79.4M units — now at 62.2M and declining.'},
+      {icon:'⚡',text:'<strong>Infrastructure CapEx signal:</strong> 237K stations in 2025 vs 148 in 2010. Annual station growth rate averaged 45% CAGR. Infra spending is the leading indicator for market expansion.'},
+      {icon:'📈',text:'<strong>Segment profitability:</strong> Premium EVs launched first (higher margin), mass-market is now volume leader at 11.4M units. Commercial EVs (1.0M) are fastest-growing segment in 2025.'}
+    ],
+    takeaway: 'linear-gradient(135deg,#4c1d95,#6d28d9)',
+    takeawayText: '💡 <strong>Audit note:</strong> All data sourced from raw EV vs Petrol dataset (2010–2025). KPIs include EV sales, ICE sales, charging stations, fast-charger share, avg range, fuel price, electricity price, GDP per capita, subsidy, CO₂ transport emissions, and emission regulation score.'
+  }
+};
+
+function switchAudience(key, btn) {
+  // Update sidebar active state
+  document.querySelectorAll('.sidebar-icon').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const d = AUDIENCE_DATA[key];
+  if (!d) return;
+
+  const statsHTML = `<div class="aud-grid" style="margin-bottom:20px">
+    ${d.stats.map(s => `
+      <div class="aud-stat">
+        <div class="aud-stat-icon">${s.icon}</div>
+        <div>
+          <div class="aud-stat-val" style="color:${s.color}">${s.val}</div>
+          <div class="aud-stat-lbl">${s.lbl}</div>
+        </div>
+      </div>
+    `).join('')}
+  </div>`;
+
+  const insightsHTML = d.insights.map(i => `
+    <div class="aud-insight-row">
+      <div class="aud-insight-icon">${i.icon}</div>
+      <div class="aud-insight-text">${i.text}</div>
+    </div>
+  `).join('');
+
+  document.getElementById('audienceInner').innerHTML = `
+    <!-- Header -->
+    <div style="background:${d.bg};padding:28px 32px 24px;border-radius:20px 20px 0 0;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,${d.color}33,transparent 70%);pointer-events:none"></div>
+      <div onclick="closeAudience()" style="position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.6);transition:all 0.2s" onmouseover="this.style.background='rgba(239,68,68,0.3)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.6)'">✕</div>
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:6px 12px;font-size:10px;font-weight:700;color:${d.color};letter-spacing:2px;margin-bottom:14px">${d.icon} ${d.label}</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;color:#fff;line-height:1.2;margin-bottom:8px">${d.title}</div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.7;max-width:560px">${d.subtitle}</div>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:24px 32px">
+      ${statsHTML}
+      <div style="font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:#111827;margin-bottom:12px">📍 Key Insights for This Audience</div>
+      <div style="margin-bottom:20px">${insightsHTML}</div>
+      <div class="aud-takeaway" style="background:${d.takeaway}">${d.takeawayText.replace('💡 ','💡 ')}</div>
+    </div>
+  `;
+
+  const modal = document.getElementById('audienceModal');
+  const backdrop = document.getElementById('audienceBackdrop');
+  modal.style.display = 'block';
+  backdrop.style.display = 'block';
+  modal.style.animation = 'modalIn 0.3s cubic-bezier(0.34,1.2,0.64,1) both';
+  modal.scrollTop = 0;
+}
+
+function closeAudience() {
+  const modal = document.getElementById('audienceModal');
+  const backdrop = document.getElementById('audienceBackdrop');
+  modal.style.animation = 'modalOut 0.2s ease forwards';
+  setTimeout(() => {
+    modal.style.display = 'none';
+    backdrop.style.display = 'none';
+    // Reset sidebar to general (first) icon
+    document.querySelectorAll('.sidebar-icon').forEach((b,i) => {
+      b.classList.toggle('active', i === 0);
+    });
+  }, 200);
 }
 </script>
 </body>
