@@ -809,23 +809,26 @@ body {
 
       <!-- SEGMENT CARDS -->
       <div class="segment-row">
-        <div class="seg-card green">
+        <div class="seg-card green" onclick="openSegmentModal('mass')" style="cursor:pointer">
           <span class="seg-icon">🏙️</span>
           <div class="seg-name">Mass Market</div>
           <div class="seg-val">11.4M</div>
           <div class="seg-sub">Units in 2025 · <strong style="color:var(--green)">+17%</strong> YoY</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:6px;font-weight:600;letter-spacing:0.5px">Click to explore ↗</div>
         </div>
-        <div class="seg-card blue">
+        <div class="seg-card blue" onclick="openSegmentModal('premium')" style="cursor:pointer">
           <span class="seg-icon">💎</span>
           <div class="seg-name">Premium</div>
           <div class="seg-val">7.2M</div>
           <div class="seg-sub">Units in 2025 · <strong style="color:var(--accent)">+19%</strong> YoY</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:6px;font-weight:600;letter-spacing:0.5px">Click to explore ↗</div>
         </div>
-        <div class="seg-card orange">
+        <div class="seg-card orange" onclick="openSegmentModal('commercial')" style="cursor:pointer">
           <span class="seg-icon">🚛</span>
           <div class="seg-name">Commercial</div>
           <div class="seg-val">1.0M</div>
           <div class="seg-sub">Units in 2025 · <strong style="color:var(--orange)">+20%</strong> YoY</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:6px;font-weight:600;letter-spacing:0.5px">Click to explore ↗</div>
         </div>
       </div>
 
@@ -905,12 +908,6 @@ body {
           <div class="rpanel-card" style="padding:14px">
             <div class="rpanel-title" style="margin-bottom:6px">Top Markets · 2025 <div class="more-btn">···</div></div>
             <div id="statRows"></div>
-          </div>
-
-          <!-- COST -->
-          <div class="rpanel-card" style="padding:14px">
-            <div class="rpanel-title" style="margin-bottom:8px">Running Cost / 100km <div class="more-btn">···</div></div>
-            <canvas id="costChart" height="100"></canvas>
           </div>
 
           <!-- DONUT -->
@@ -1611,32 +1608,6 @@ function buildStatRows() {
 }
 
 // ===== COST CHART =====
-function initCostChart() {
-  new Chart(document.getElementById('costChart'), {
-    type: 'bar',
-    data: {
-      labels: ['China','USA','Germany','India','Norway'],
-      datasets: [
-        { label: 'EV ($/100km)', data: [1.4, 2.2, 5.3, 1.5, 3.1],
-          backgroundColor: 'rgba(79,110,247,0.7)', borderRadius: 4, borderSkipped: false },
-        { label: 'ICE (Petrol/Diesel) $/100km', data: [4.5, 6.8, 9.1, 5.0, 10.2],
-          backgroundColor: 'rgba(249,115,22,0.6)', borderRadius: 4, borderSkipped: false }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 10 }, padding: 8, color: '#6B7280' } },
-        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: $${ctx.raw}` } }
-      },
-      scales: {
-        x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 10 } } },
-        y: { grid: { color: '#F3F4F6' }, border: { display: false }, ticks: { callback: v => '$'+v, font: { size: 10 } } }
-      }
-    }
-  });
-}
-
 // ===== PIVOT DONUT =====
 function initPivotDonut() {
   new Chart(document.getElementById('pivotDonut'), {
@@ -2072,7 +2043,6 @@ window.addEventListener('DOMContentLoaded', () => {
   initMainChart();
   initRadar();
   buildStatRows();
-  initCostChart();
   initPivotDonut();
   initRangeSparkline();
   buildCountryTable();
@@ -2572,6 +2542,12 @@ function openStory(key) {
   backdrop.style.display = 'block';
   modal.style.animation = 'modalIn 0.3s cubic-bezier(0.34,1.2,0.64,1) both';
   modal.scrollTop = 0;
+
+  // Destroy old chart instance for this key if it exists, then redraw on fresh canvas
+  if (storyCharts[key]) {
+    storyCharts[key].destroy();
+    delete storyCharts[key];
+  }
 
   // Draw chart after render
   requestAnimationFrame(() => requestAnimationFrame(() => story.chartFn()));
@@ -3089,7 +3065,272 @@ function closeAudience() {
   }, 200);
 }
 </script>
-<!-- COUNTRY SPOTLIGHT MODAL -->
+<!-- SEGMENT MODAL -->
+<div id="segBackdrop" onclick="closeSegmentModal()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(17,24,39,0.55);backdrop-filter:blur(4px);z-index:99996"></div>
+<div id="segModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:99997;width:min(700px,95vw);max-height:90vh;overflow-y:auto;border-radius:20px;background:#fff;box-shadow:0 32px 80px rgba(0,0,0,0.2);font-family:'Figtree',sans-serif">
+  <div id="segInner"></div>
+</div>
+
+<script>
+const SEG_DATA = {
+  mass: {
+    name: 'Mass Market EVs',
+    icon: '🏙️',
+    color: '#22C55E',
+    bgGrad: 'linear-gradient(135deg,#14172B,#0f2a1a)',
+    tag: 'THE PEOPLE\'S EV',
+    tagline: 'Where volume lives. The real EV revolution happened here.',
+    story: 'Mass market EVs were the last to scale — but when they did, they changed everything. Starting at just 11,849 units in 2010, this segment now drives 11.4M sales annually, accounting for <strong>58%</strong> of all EV volume. China\'s BYD, Tesla\'s Model 3/Y, and Europe\'s Volkswagen ID.4 made this possible.',
+    total: '54.9M',
+    allTime: 54923378,
+    peakGrowth: '107%',
+    peakYear: 2021,
+    share2025: '58%',
+    fact: 'The Mass Market segment took 11 years to reach 1M annual sales, then doubled in just 12 months.',
+    data: [
+      {yr:2010,units:11849,growth:0},
+      {yr:2011,units:39671,growth:234.8},
+      {yr:2012,units:69462,growth:75.1},
+      {yr:2013,units:128758,growth:85.4},
+      {yr:2014,units:184082,growth:43.0},
+      {yr:2015,units:301521,growth:63.8},
+      {yr:2016,units:428726,growth:42.2},
+      {yr:2017,units:780052,growth:81.9},
+      {yr:2018,units:1113720,growth:42.8},
+      {yr:2019,units:1179064,growth:5.9},
+      {yr:2020,units:1742753,growth:47.8},
+      {yr:2021,units:3804124,growth:118.3},
+      {yr:2022,units:5884832,growth:54.7},
+      {yr:2023,units:7697456,growth:30.8},
+      {yr:2024,units:9700400,growth:26.0},
+      {yr:2025,units:11429256,growth:17.8}
+    ]
+  },
+  premium: {
+    name: 'Premium EVs',
+    icon: '💎',
+    color: '#4F6EF7',
+    bgGrad: 'linear-gradient(135deg,#0f1a3a,#1a1a40)',
+    tag: 'THE PIONEER',
+    tagline: 'Premium led the charge. Tesla proved EVs could be desirable.',
+    story: 'Premium EVs launched the revolution. Tesla\'s Model S in 2012 shattered the myth that EVs had to be boring. This segment built the brand trust, the range benchmarks, and the charging infrastructure that made mass adoption possible. In 2025, Premium accounts for <strong>37%</strong> of all EV sales.',
+    total: '36.9M',
+    allTime: 36918874,
+    peakGrowth: '107%',
+    peakYear: 2021,
+    share2025: '37%',
+    fact: 'Premium EVs outsold Mass Market EVs every single year from 2010 to 2018 — they built the market before the masses arrived.',
+    data: [
+      {yr:2010,units:7258,growth:0},
+      {yr:2011,units:25333,growth:249.0},
+      {yr:2012,units:44404,growth:75.3},
+      {yr:2013,units:88917,growth:100.2},
+      {yr:2014,units:123725,growth:39.2},
+      {yr:2015,units:201435,growth:62.8},
+      {yr:2016,units:274261,growth:36.2},
+      {yr:2017,units:492848,growth:79.7},
+      {yr:2018,units:709733,growth:44.0},
+      {yr:2019,units:750840,growth:5.8},
+      {yr:2020,units:1092233,growth:45.5},
+      {yr:2021,units:2361928,growth:116.3},
+      {yr:2022,units:3532064,growth:49.5},
+      {yr:2023,units:4913675,growth:39.1},
+      {yr:2024,units:6056082,growth:23.3},
+      {yr:2025,units:7224281,growth:19.3}
+    ]
+  },
+  commercial: {
+    name: 'Commercial EVs',
+    icon: '🚛',
+    color: '#F97316',
+    bgGrad: 'linear-gradient(135deg,#1a0f0f,#2a1500)',
+    tag: 'THE SLEEPER HIT',
+    tagline: 'Vans, buses, trucks — the quiet giant of the EV market.',
+    story: 'Commercial EVs are the least talked-about but fastest-growing EV segment in 2025. Electric delivery vans (Amazon, DHL), city buses, and light commercial vehicles are being mandated by urban clean-air zones globally. At 1.0M units in 2025 (+20% YoY), this segment is just getting started.',
+    total: '4.5M',
+    allTime: 4548356,
+    peakGrowth: '118%',
+    peakYear: 2021,
+    share2025: '5%',
+    fact: 'Commercial EVs are the fastest-growing segment in 2025 at +20% YoY — driven by urban emission zones banning diesel vans.',
+    data: [
+      {yr:2010,units:1032,growth:0},
+      {yr:2011,units:3528,growth:241.9},
+      {yr:2012,units:6233,growth:76.6},
+      {yr:2013,units:11833,growth:89.8},
+      {yr:2014,units:16881,growth:42.7},
+      {yr:2015,units:27316,growth:61.8},
+      {yr:2016,units:38269,growth:40.1},
+      {yr:2017,units:70159,growth:83.3},
+      {yr:2018,units:98810,growth:40.8},
+      {yr:2019,units:104846,growth:6.1},
+      {yr:2020,units:154483,growth:47.3},
+      {yr:2021,units:337010,growth:118.2},
+      {yr:2022,units:516446,growth:53.2},
+      {yr:2023,units:672742,growth:30.3},
+      {yr:2024,units:848874,growth:26.2},
+      {yr:2025,units:1019632,growth:20.1}
+    ]
+  }
+};
+
+const segCharts = {};
+
+function openSegmentModal(key) {
+  const d = SEG_DATA[key];
+  if (!d) return;
+
+  // Destroy old chart
+  if (segCharts[key]) { segCharts[key].destroy(); delete segCharts[key]; }
+
+  const maxUnits = Math.max(...d.data.map(r => r.units));
+
+  const tableRows = d.data.map((r,i) => {
+    const barW = Math.round((r.units / maxUnits) * 120);
+    const isPeak = r.yr === d.peakYear;
+    return `<tr style="${isPeak ? 'background:'+d.color+'08;' : ''}">
+      <td style="font-family:'DM Mono',monospace;font-size:11px;color:${isPeak ? d.color : '#6B7280'};font-weight:${isPeak?'700':'500'};padding:9px 12px">${r.yr}${isPeak ? ' 🔥' : ''}</td>
+      <td style="font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:${isPeak ? d.color : '#111827'};padding:9px 12px">${r.units >= 1e6 ? (r.units/1e6).toFixed(2)+'M' : r.units >= 1e3 ? (r.units/1e3).toFixed(0)+'K' : r.units}</td>
+      <td style="padding:9px 12px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:120px;height:6px;background:#F3F4F6;border-radius:3px;overflow:hidden;flex-shrink:0">
+            <div style="width:${barW}px;height:100%;background:linear-gradient(90deg,${d.color},${d.color}88);border-radius:3px"></div>
+          </div>
+        </div>
+      </td>
+      <td style="padding:9px 12px">
+        ${r.growth > 0 ? `<span style="background:${r.growth > 80 ? d.color+'20' : '#F3F4F6'};color:${r.growth > 80 ? d.color : '#6B7280'};font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;font-family:'DM Mono',monospace">▲${r.growth}%</span>` : '<span style="color:#9CA3AF;font-size:11px">Baseline</span>'}
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('segInner').innerHTML = `
+    <!-- Header -->
+    <div style="background:${d.bgGrad};padding:26px 30px 22px;border-radius:20px 20px 0 0;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-30px;right:-30px;width:160px;height:160px;background:radial-gradient(circle,${d.color}33,transparent 70%);pointer-events:none"></div>
+      <div onclick="closeSegmentModal()" style="position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:9px;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:rgba(255,255,255,0.6)" onmouseover="this.style.background='rgba(239,68,68,0.3)';this.style.color='#fff'" onmouseout="this.style.background='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.6)'">✕</div>
+      <div style="display:inline-block;background:${d.color}22;border:1px solid ${d.color}44;border-radius:7px;padding:4px 12px;font-size:10px;font-weight:700;color:${d.color};letter-spacing:2px;margin-bottom:10px">${d.icon} ${d.tag}</div>
+      <div style="font-family:'Outfit',sans-serif;font-size:24px;font-weight:900;color:#fff;margin-bottom:6px">${d.name} <span style="color:${d.color}">· 2010–2025</span></div>
+      <div style="font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;max-width:500px;margin-bottom:18px">${d.tagline}</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.08)">
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:${d.color}">${d.total}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px">ALL-TIME SALES</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.08)">
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:#fff">${d.peakGrowth}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px">PEAK GROWTH</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.08)">
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:#A78BFA">${d.peakYear}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px">BREAKOUT YEAR</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.07);border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.08)">
+          <div style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:#F59E0B">${d.share2025}</div>
+          <div style="font-size:9px;color:rgba(255,255,255,0.4);margin-top:2px;letter-spacing:0.5px">OF 2025 EV SALES</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:22px 28px;display:flex;flex-direction:column;gap:16px">
+
+      <!-- Story + Fun Fact -->
+      <div style="display:grid;grid-template-columns:1.3fr 1fr;gap:12px">
+        <div style="background:#F9FAFB;border:1px solid #F3F4F6;border-radius:12px;padding:16px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#9CA3AF;text-transform:uppercase;margin-bottom:8px">The Story</div>
+          <div style="font-size:13px;color:#374151;line-height:1.7">${d.story}</div>
+        </div>
+        <div style="background:linear-gradient(135deg,${d.color}10,${d.color}05);border:1px solid ${d.color}22;border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:${d.color};text-transform:uppercase">💡 Did You Know?</div>
+          <div style="font-size:13px;color:#374151;line-height:1.7;flex:1">${d.fact}</div>
+          <div style="background:${d.color};border-radius:8px;padding:10px 14px;text-align:center;margin-top:4px">
+            <div style="font-family:'Outfit',sans-serif;font-size:22px;font-weight:900;color:#fff">${d.share2025}</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.75);margin-top:2px">of all EVs sold in 2025</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div style="background:#FAFBFF;border:1px solid #EEF1FF;border-radius:12px;padding:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <span style="font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:#111827">Annual Units Sold · ${d.name}</span>
+          <span style="background:${d.color}18;color:${d.color};font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px">2010–2025</span>
+        </div>
+        <canvas id="segChart_${key}" height="140"></canvas>
+      </div>
+
+      <!-- Year-by-year table -->
+      <div style="border:1px solid #F3F4F6;border-radius:12px;overflow:hidden">
+        <div style="padding:12px 16px;background:#F9FAFB;border-bottom:1px solid #F3F4F6;display:flex;align-items:center;gap:8px">
+          <span style="font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;color:#111827">Year-by-Year Ledger</span>
+          <span style="font-size:11px;color:#9CA3AF">🔥 = Peak growth year</span>
+        </div>
+        <div style="overflow-y:auto;max-height:280px">
+          <table style="width:100%;border-collapse:collapse">
+            <thead>
+              <tr style="position:sticky;top:0;background:#fff;box-shadow:0 1px 0 #E5E7EB;z-index:2">
+                <th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9CA3AF">Year</th>
+                <th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9CA3AF">Units Sold</th>
+                <th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9CA3AF">Volume Bar</th>
+                <th style="padding:10px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#9CA3AF">YoY Growth</th>
+              </tr>
+            </thead>
+            <tbody>${tableRows}</tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  `;
+
+  const modal = document.getElementById('segModal');
+  const backdrop = document.getElementById('segBackdrop');
+  modal.style.display = 'block';
+  backdrop.style.display = 'block';
+  modal.style.animation = 'modalIn 0.3s cubic-bezier(0.34,1.2,0.64,1) both';
+  modal.scrollTop = 0;
+
+  // Draw chart
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const ctx = document.getElementById('segChart_' + key);
+    if (!ctx) return;
+    segCharts[key] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: d.data.map(r => r.yr),
+        datasets: [{
+          label: 'Units Sold',
+          data: d.data.map(r => r.units),
+          backgroundColor: d.data.map(r => r.yr === d.peakYear ? d.color : d.color + '44'),
+          borderColor: d.color,
+          borderWidth: 1,
+          borderRadius: 4,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: c => ` ${(c.raw >= 1e6 ? (c.raw/1e6).toFixed(2)+'M' : (c.raw/1e3).toFixed(0)+'K')} units` } }
+        },
+        scales: {
+          x: { grid: { display: false }, border: { display: false }, ticks: { font: { size: 10 } } },
+          y: { grid: { color: '#F3F4F6' }, border: { display: false }, ticks: { callback: v => v >= 1e6 ? (v/1e6).toFixed(1)+'M' : (v/1e3).toFixed(0)+'K', font: { size: 10 } } }
+        }
+      }
+    });
+  }));
+}
+
+function closeSegmentModal() {
+  const modal = document.getElementById('segModal');
+  const backdrop = document.getElementById('segBackdrop');
+  modal.style.animation = 'modalOut 0.2s ease forwards';
+  setTimeout(() => { modal.style.display = 'none'; backdrop.style.display = 'none'; }, 200);
+}
+</script>
 <div id="spotlightBackdrop" onclick="closeSpotlight()" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(17,24,39,0.55);backdrop-filter:blur(4px);z-index:99998"></div>
 <div id="spotlightModal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:99999;width:min(680px,95vw);max-height:90vh;overflow-y:auto;border-radius:20px;background:#fff;box-shadow:0 32px 80px rgba(0,0,0,0.2);font-family:'Figtree',sans-serif">
   <div id="spotlightInner"></div>
